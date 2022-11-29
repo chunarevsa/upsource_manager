@@ -1,38 +1,49 @@
 package com.rtkit.upsource_manager.controllers
 
-import com.rtkit.upsource_manager.services.AuthServiceImpl
-import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
+import com.rtkit.upsource_manager.payload.auth.LoginRequest
+import com.rtkit.upsource_manager.services.AuthService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
-@Controller
-class AuthController(private val authService: AuthServiceImpl) {
+@RestController
+open class AuthController(private val authService: AuthService) {
 
-    @GetMapping
-    fun validateCon(model: MutableMap<String, Any>): String {
-        if (!authService.validateAuthFile()) {
-            return "redirect:/login"
-        }
-        return if (authService.validateCon()) "redirect:/main/review" else "redirect:/login"
-    }
-
-    @GetMapping("/login")
-    fun login(model: MutableMap<String, Any>): String {
-        return "login"
-    }
-
+    /**
+     * Авторизация по логину паролю
+     * @param loginRequest
+     * @return
+     */
     @PostMapping("/login")
-    fun getLogin(
-            model: MutableMap<String, Any>,
-            username: String,
-            password: String,
-    ): String {
-        return if (authService.login(username, password)) "redirect:/main/review" else "redirect:/login"
-    }
+    open fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<Any> {
 
-    @PostMapping("/logout")
-    fun logout(model: MutableMap<String, Any>): String {
-        authService.logout()
-        return "redirect:/login"
+        authService.authenticateUser(loginRequest)
+
+//        val authentication: Authentication = authService.authenticateUser(loginRequest)
+//        orElseThrow { UserLoginException("аутентификации", loginRequest.getEmail()) }
+//        val jwtUser = authentication.principal as JwtUser
+//        TempAuthController.logger.info("Вход в систему  " + jwtUser.username)
+//        SecurityContextHolder.getContext().authentication = authentication
+//        return authService.createAndPersistRefreshTokenForDevice(authentication, loginRequest)
+//            .map<Any>(RefreshToken::getToken)
+//            .map { refreshToken: Any? ->
+//                val jwtToken = authService.createToken(jwtUser)
+//                ResponseEntity.ok<Any>(
+//                    JwtAuthenticationResponse(
+//                        jwtToken,
+//                        refreshToken,
+//                        jwtTokenProvider.getExpiryDuration()
+//                    )
+//                )
+//            }.orElseThrow(Supplier<RuntimeException> {
+//                UserLoginException(
+//                    "создания токена",
+//                    loginRequest.getEmail()
+//                )
+//            })
+        return ResponseEntity(HttpStatus.ACCEPTED)
     }
 }
