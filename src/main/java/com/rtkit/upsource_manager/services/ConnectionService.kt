@@ -10,11 +10,11 @@ import java.nio.charset.StandardCharsets
 
 @Service
 class ConnectionService {
-    fun makeTrialConnection(basicAuth: String) {
+    fun makeTrialConnection(basicAuth: String): String? {
         val connectionFactory: ConnectionFactory = TrialConnectionFactory()
         val connection: Connection = connectionFactory.getConnection()
         val con: HttpURLConnection = configureConnection(connection.getUrl(), basicAuth)
-        doPostRequestAndGetResponse(con, connection.jsonRequest)
+        return doPostRequestAndGetResponse(con, connection.jsonRequest)
     }
 
 
