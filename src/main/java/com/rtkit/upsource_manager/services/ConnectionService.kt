@@ -1,5 +1,7 @@
 package com.rtkit.upsource_manager.services
 
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.springframework.stereotype.Service
 import java.io.BufferedReader
 import java.io.IOException
@@ -10,10 +12,13 @@ import java.nio.charset.StandardCharsets
 
 @Service
 class ConnectionService {
+
+    private val logger: Logger = LogManager.getLogger(ConnectionService::class.java)
     fun makeTrialConnection(basicAuth: String): String? {
         val connectionFactory: ConnectionFactory = TrialConnectionFactory()
         val connection: Connection = connectionFactory.getConnection()
         val con: HttpURLConnection = configureConnection(connection.getUrl(), basicAuth)
+        logger.info(con.toString()) // TODO: Убрать
         return doPostRequestAndGetResponse(con, connection.jsonRequest)
     }
 
@@ -53,9 +58,10 @@ class ConnectionService {
                 }
             }
         } catch (e: IOException) {
-            println("Ошибка чтения информации")
+            logger.info("Ошибка чтения информации")
             return null
         }
+        logger.info(response.toString()) // TODO: Убрать
         return response.toString()
     }
 

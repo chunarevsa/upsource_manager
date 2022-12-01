@@ -27,10 +27,10 @@ class ReviewServiceImpl(
     var defaultTimeToExpired: Long = 1209600000L
 
     init {
-        println("Загрузка Ревью")
-        getReviews()
+        //println("Загрузка Ревью")
+        //getReviews()
         println("Reviews:${reviews.size} ")
-        getReviewsWithEmptyRevision()
+        //getReviewsWithEmptyRevision()
         println("Reviews with empty revision :${reviewsWithEmptyRevisionList.size} ")
     }
 
