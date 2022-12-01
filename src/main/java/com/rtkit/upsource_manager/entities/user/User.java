@@ -1,12 +1,13 @@
 package com.rtkit.upsource_manager.entities.user;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "user")
+@Table(name = "developer")
 public class User {
 
     @Id
@@ -16,29 +17,41 @@ public class User {
     private Long id;
 
     @Column(name = "login", unique = true, nullable = false)
-    @NotNull(message = "Login cannot be null")
     private String login;
 
-    @Column(name = "password")
-    @NotNull(message = "Password cannot be null")
+    @Column(name = "PASSWORD")
     private String password;
 
-    @Column(name = "is_active", nullable = false)
+    @Column(name = "IS_ACTIVE", nullable = false)
     private Boolean active;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "USER_AUTHORITY",
-            joinColumns = { @JoinColumn(name = "USER_ID", referencedColumnName = "USER_ID") },
-            inverseJoinColumns = { @JoinColumn(name = "ROLE_ID", referencedColumnName = "ROLE_ID") })
+    @JoinTable(name = "user_authority",
+            joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "user_id") },
+            inverseJoinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "role_id") })
     private Set<Role> roles = new HashSet<>();
 
-    public User(String login, String password, Boolean active) {
+    public User() {}
+
+    public User(User user) {
+        this.id = user.id;
+        this.login = user.login;
+        this.password = user.password;
+        this.active = user.active;
+        this.roles = user.roles;
+    }
+
+    public User(Long id,
+                String login,
+                String password,
+                Boolean active,
+                Set<Role> roles) {
+        this.id = id;
         this.login = login;
         this.password = password;
         this.active = active;
+        this.roles = roles;
     }
-
-    public User() {}
 
     public void addRole(Role role) {
         roles.add(role);
@@ -50,11 +63,11 @@ public class User {
     }
 
     public Long getId() {
-        return id;
+        return this.id;
     }
 
     public String getLogin() {
-        return login;
+        return this.login;
     }
 
     public void setLogin(String login) {
@@ -62,26 +75,40 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
+    public Boolean isActive() {
+        return this.active;
+    }
+
+    public Boolean getActive() {
+        return this.active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
     public Set<Role> getRoles() {
-        return roles;
+        return this.roles;
     }
 
     public void setRoles(Set<Role> roles) {
         this.roles = roles;
     }
 
-    public Boolean isActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
+    @Override
+    public String toString() {
+        return "{" +
+                " id='" + getId() + "'" +
+                ", password='" + getPassword() + "'" +
+                ", active='" + isActive() + "'" +
+                ", roles='" + getRoles() + "'" +
+                "}";
     }
 }

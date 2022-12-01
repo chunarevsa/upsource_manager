@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 
 public class JwtUser extends User implements UserDetails {
 
-	public JwtUser (final User user) {
-		super(user.getLogin(), user.getPassword(), user.isActive());
-	}
+	public JwtUser (final User user) { super(user); }
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
