@@ -24,8 +24,9 @@ open class AuthController(private val authService: AuthService) {
      */
     @PostMapping("/login")
     open fun login(@Valid @RequestBody loginRequest: LoginRequest): ResponseEntity<Any> {
+        // TODO: используем пока LoginRequest Когда будет фронт, будем тянуть оттуда данные
         val jwtAuthenticationResponse = authService.authenticateUser(loginRequest)
         logger.info(jwtAuthenticationResponse.toString()) // TODO: Убрать
         return ResponseEntity.ok(jwtAuthenticationResponse)
-}
+    }
 }
