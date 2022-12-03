@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import java.util.*
 
 @Service
 class AuthService(
@@ -25,7 +26,8 @@ class AuthService(
         val login = loginRequest.login
         val password = loginRequest.password
 
-        validateAuthenticatedData("$login:$password")
+        val authData = getAuthData(login, password)
+        validateAuthenticatedData(authData)
         if (!userService.userAlreadyExists(login)) userService.addNewUser(login, password)
 
         val user = UsernamePasswordAuthenticationToken(login, password)
@@ -39,6 +41,11 @@ class AuthService(
             jwtToken = createJwtToken(jwtUser),
             expiryDuration = jwtTokenProvider.expiryDuration
         )
+    }
+
+    private fun getAuthData(login: String, password: String): String {
+        val data = String(Base64.getEncoder().encode("$login:$password".toByteArray()))
+        return "Basic $data"
     }
 
     private fun createJwtToken(jwtUser: JwtUser): String {
