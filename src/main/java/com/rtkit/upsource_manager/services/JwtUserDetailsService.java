@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.services;
 
-import com.rtkit.upsource_manager.entities.user.User;
-import com.rtkit.upsource_manager.repositories.UserRepository;
+import com.rtkit.upsource_manager.entities.prticipant.Participant;
+import com.rtkit.upsource_manager.repositories.ParticipantRepository;
 import com.rtkit.upsource_manager.security.jwt.JwtUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,23 +14,23 @@ import java.util.Optional;
 @Service
 public class JwtUserDetailsService implements UserDetailsService{
 
-	private final UserRepository userRepository;
+	private final ParticipantRepository participantRepository;
 
 	@Autowired
-	public JwtUserDetailsService(UserRepository userRepository) {
-		this.userRepository = userRepository;
+	public JwtUserDetailsService(ParticipantRepository participantRepository) {
+		this.participantRepository = participantRepository;
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String login) {
-		Optional<User> user = userRepository.findByLogin(login);
+		Optional<Participant> user = participantRepository.findByLogin(login);
 		return user.map(JwtUser::new)
 			.orElseThrow(() -> new UsernameNotFoundException("Не удалось найти пользователя " + login));
 		
 	} 
 
 	public UserDetails loadUserById(Long id)  {
-		Optional<User> user = userRepository.findById(id);
+		Optional<Participant> user = participantRepository.findById(id);
 		return user.map(JwtUser::new)
 			.orElseThrow(() -> new UsernameNotFoundException("Не удалось найти пользователя " + id));
 

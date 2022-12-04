@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.entities.changes;
+package com.rtkit.upsource_manager.payload.pacer.changes;
 
 public class ChangesResult {
 	public Diff diff;

@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.entities.user;
+package com.rtkit.upsource_manager.entities.prticipant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
@@ -22,7 +22,7 @@ public class Role {
 
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     @JsonIgnore
-    private Set<User> users = new HashSet<>();
+    private Set<Participant> participants = new HashSet<>();
 
     public Role(RoleName role) {
         this.role = role;
@@ -45,12 +45,12 @@ public class Role {
         this.role = role;
     }
 
-    public Set<User> getUsers() {
-        return this.users;
+    public Set<Participant> getParticipants() {
+        return this.participants;
     }
 
-    public void setUsers(Set<User> users) {
-        this.users = users;
+    public void setParticipants(Set<Participant> participants) {
+        this.participants = participants;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class Role {
         return "Role{" +
                 "id=" + id +
                 ", role=" + role +
-                ", users=" + users +
+                ", participants=" + participants +
                 '}';
     }
 }

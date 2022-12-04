@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.entities.review;
+package com.rtkit.upsource_manager.payload.pacer.review;
 
 public class ParticipantRoot {
     public ParticipantResult result;

@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.entities.revision;
+package com.rtkit.upsource_manager.payload.pacer.revision;
 
 public class RevisionResult {
 	public AllRevisions allRevisions;

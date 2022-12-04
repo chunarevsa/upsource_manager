@@ -1,19 +1,17 @@
-package com.rtkit.upsource_manager.entities.user;
+package com.rtkit.upsource_manager.entities.prticipant;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "developer")
-public class User {
+@Table(name = "participant")
+public class Participant {
 
     @Id
-    @Column(name = "user_id")
-    @GeneratedValue(strategy =  GenerationType.SEQUENCE, generator = "user_seq")
-    @SequenceGenerator(name = "user_seq", allocationSize = 1)
+    @Column(name = "participant_id")
+    @GeneratedValue(strategy =  GenerationType.SEQUENCE, generator = "participant_seq")
+    @SequenceGenerator(name = "participant_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "login", unique = true, nullable = false)
@@ -26,26 +24,26 @@ public class User {
     private Boolean active;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "user_authority",
-            joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "user_id") },
+    @JoinTable(name = "participant_authority",
+            joinColumns = { @JoinColumn(name = "participant_id", referencedColumnName = "participant_id") },
             inverseJoinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "role_id") })
     private Set<Role> roles = new HashSet<>();
 
-    public User() {}
+    public Participant() {}
 
-    public User(User user) {
-        this.id = user.id;
-        this.login = user.login;
-        this.password = user.password;
-        this.active = user.active;
-        this.roles = user.roles;
+    public Participant(Participant participant) {
+        this.id = participant.id;
+        this.login = participant.login;
+        this.password = participant.password;
+        this.active = participant.active;
+        this.roles = participant.roles;
     }
 
-    public User(Long id,
-                String login,
-                String password,
-                Boolean active,
-                Set<Role> roles) {
+    public Participant(Long id,
+                       String login,
+                       String password,
+                       Boolean active,
+                       Set<Role> roles) {
         this.id = id;
         this.login = login;
         this.password = password;
@@ -55,7 +53,7 @@ public class User {
 
     public void addRole(Role role) {
         roles.add(role);
-        role.getUsers().add(this);
+        role.getParticipants().add(this);
     }
 
     public void addRoles(Set<Role> roles) {

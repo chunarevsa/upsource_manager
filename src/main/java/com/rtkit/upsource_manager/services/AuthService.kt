@@ -16,19 +16,19 @@ import java.util.*
 @Service
 class AuthService(
     private val connectionService: ConnectionService,
-    private val userService: UserService,
+    private val participantService: ParticipantService,
     private val authenticationManager: AuthenticationManager,
     private val jwtTokenProvider: JwtTokenProvider,
 ) {
     private val logger: Logger = LogManager.getLogger(AuthService::class.java)
 
-    fun authenticateUser(loginRequest: LoginRequest): JwtAuthenticationResponse {
+    fun authenticateParticipant(loginRequest: LoginRequest): JwtAuthenticationResponse {
         val login = loginRequest.login
         val password = loginRequest.password
 
         val authData = getAuthData(login, password)
         validateAuthenticatedData(authData)
-        if (!userService.userAlreadyExists(login)) userService.addNewUser(login, password)
+        if (!participantService.participantAlreadyExists(login)) participantService.addNewParticipant(login, password)
 
         val user = UsernamePasswordAuthenticationToken(login, password)
         val authentication: Authentication = authenticationManager.authenticate(user)

@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.controllers
 
-import com.rtkit.upsource_manager.entities.review.Review
+import com.rtkit.upsource_manager.payload.pacer.review.Review
 import com.rtkit.upsource_manager.services.AuthServiceImpl
 import com.rtkit.upsource_manager.services.ReviewServiceImpl
 

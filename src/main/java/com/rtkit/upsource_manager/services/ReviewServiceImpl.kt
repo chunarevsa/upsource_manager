@@ -1,11 +1,11 @@
 package com.rtkit.upsource_manager.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.rtkit.upsource_manager.entities.changes.ChangesRoot
-import com.rtkit.upsource_manager.entities.review.Participant
-import com.rtkit.upsource_manager.entities.review.ParticipantRoot
-import com.rtkit.upsource_manager.entities.review.Review
-import com.rtkit.upsource_manager.entities.review.ReviewRoot
+import com.rtkit.upsource_manager.payload.pacer.changes.ChangesRoot
+import com.rtkit.upsource_manager.payload.pacer.review.Participant
+import com.rtkit.upsource_manager.payload.pacer.review.ParticipantRoot
+import com.rtkit.upsource_manager.payload.pacer.review.Review
+import com.rtkit.upsource_manager.payload.pacer.review.ReviewRoot
 import com.rtkit.upsource_manager.entities.RequestURL
 import org.springframework.stereotype.Service
 import java.time.Instant
