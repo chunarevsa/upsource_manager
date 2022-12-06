@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
 abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> {
 
     val projectId: String = "elk"
-    var encodedAuth = "c2VyZ2V5LmNodW5hcmV2OlN2ZW44MzgyNDYwKg=="
+    var encodedAuth = "Basic c2VyZ2V5LmNodW5hcmV2OlN2ZW44MzgyNDYwKg=="
 
     private var headers = mutableMapOf<String, String>()
 
@@ -58,7 +58,7 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> {
             con.requestMethod = "POST"
             con.doOutput = true
             con.setRequestProperty("Accept", "application/json")
-            con.setRequestProperty("Authorization", "Basic $encodedAuth")
+            con.setRequestProperty("Authorization", encodedAuth)
             con.setRequestProperty("Content-Type", "application/json")
         } catch (e: IOException) {
             e.printStackTrace()

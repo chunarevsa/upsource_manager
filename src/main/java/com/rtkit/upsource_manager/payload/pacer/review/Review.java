@@ -18,6 +18,8 @@ public class Review {
     public boolean isMuted;
     public List<String> branch;
 
+    public String description;
+
     public Review(ReviewId reviewId, String createdBy) {
         this.reviewId = reviewId;
         this.createdBy = createdBy;
@@ -153,6 +155,14 @@ public class Review {
 
     public List<String> getBranch() {
         return branch;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
 

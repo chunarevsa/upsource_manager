@@ -25,6 +25,8 @@ public class ReviewId {
 		this.reviewId = reviewId;
 	}
 
+	public ReviewId() {}
+
 	@Override
 	public String toString() {
 		return "reviewId='" + reviewId + '\'';
