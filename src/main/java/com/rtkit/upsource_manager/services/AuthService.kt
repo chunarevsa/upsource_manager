@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.payload.api.TrialConnectionRequest
 import com.rtkit.upsource_manager.payload.auth.JwtAuthenticationResponse
 import com.rtkit.upsource_manager.security.jwt.JwtTokenProvider
 import com.rtkit.upsource_manager.security.jwt.JwtUser
@@ -14,10 +15,10 @@ import java.util.*
 
 @Service
 class AuthService(
-    private val connectionService: ConnectionService,
     private val participantService: ParticipantService,
     private val authenticationManager: AuthenticationManager,
     private val jwtTokenProvider: JwtTokenProvider,
+    private val protocolService: ProtocolService
 ) {
     private val logger: Logger = LogManager.getLogger(AuthService::class.java)
 
@@ -49,7 +50,9 @@ class AuthService(
     }
 
     private fun validateAuthenticatedData(authData: String) {
-        if (!connectionService.makeTrialConnection(authData)) throw Exception("Authenticated data is not validated")
+        if (!protocolService.makeRequest(TrialConnectionRequest(authData))
+                .isSuccessful()
+        ) throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }
 }

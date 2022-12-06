@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.services
+package com.rtkit.upsource_manager.payload.api
 
 import com.rtkit.upsource_manager.entities.RequestURL
 

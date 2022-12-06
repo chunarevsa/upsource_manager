@@ -13,7 +13,6 @@ import java.time.Instant
 @Service
 class ReviewServiceImpl(
         private val authService: AuthServiceImpl,
-        private val REVIEW_MAPPER: ObjectMapper,
         private val REVISION_MAPPER: ObjectMapper,
         private val PARTICIPANT: ObjectMapper
 ) {
@@ -26,22 +25,6 @@ class ReviewServiceImpl(
     /** 2 недели в миллисекундах */
     var defaultTimeToExpired: Long = 1209600000L
 
-    init {
-        //println("Загрузка Ревью")
-        //getReviews()
-        println("Reviews:${reviews.size} ")
-        //getReviewsWithEmptyRevision()
-        println("Reviews with empty revision :${reviewsWithEmptyRevisionList.size} ")
-    }
-
-    private fun getReviews() {
-        val con = authService.getConnection(RequestURL.GET_REVIEWS)
-        val jsonRequest = "{\"limit\": 1500, \"sortBy\": \"id,desc\"}"
-
-        val reviewsJson: String? = authService.doPostRequestAndReceiveResponse(con, jsonRequest)
-        val reviewRootObj = REVIEW_MAPPER.readValue(reviewsJson, ReviewRoot::class.java)
-        reviews = reviewRootObj.getResult().getReviews()
-    }
 
     fun getExpiredReviews(filter: String): List<Review> {
         expiredReviewsList.clear()
