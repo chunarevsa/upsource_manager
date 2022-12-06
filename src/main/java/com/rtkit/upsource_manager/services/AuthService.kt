@@ -1,7 +1,6 @@
 package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.payload.auth.JwtAuthenticationResponse
-import com.rtkit.upsource_manager.payload.auth.LoginRequest
 import com.rtkit.upsource_manager.security.jwt.JwtTokenProvider
 import com.rtkit.upsource_manager.security.jwt.JwtUser
 import org.apache.logging.log4j.LogManager
@@ -22,11 +21,8 @@ class AuthService(
 ) {
     private val logger: Logger = LogManager.getLogger(AuthService::class.java)
 
-    fun authenticateParticipant(loginRequest: LoginRequest): JwtAuthenticationResponse {
-        val login = loginRequest.login
-        val password = loginRequest.password
-
-        val authData = getAuthData(login, password)
+    fun authenticateParticipant(login: String, password: String): JwtAuthenticationResponse {
+        val authData = getBasicAuthData(login, password)
         validateAuthenticatedData(authData)
         if (!participantService.participantAlreadyExists(login)) participantService.addNewParticipant(login, password)
 
@@ -43,20 +39,17 @@ class AuthService(
         )
     }
 
-    private fun getAuthData(login: String, password: String): String {
+    private fun getBasicAuthData(login: String, password: String): String {
         val data = String(Base64.getEncoder().encode("$login:$password".toByteArray()))
         return "Basic $data"
     }
 
     private fun createJwtToken(jwtUser: JwtUser): String {
-        val token = jwtTokenProvider.createToken(jwtUser)
-        logger.info(token) // TODO: Убрать
-        return token
+        return jwtTokenProvider.createToken(jwtUser)
     }
 
-    private fun validateAuthenticatedData(basicAuth: String) {
-        connectionService.makeTrialConnection(basicAuth) ?: throw Exception("Неверные логин и пароль")
+    private fun validateAuthenticatedData(authData: String) {
+        if (!connectionService.makeTrialConnection(authData)) throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }
-
 }

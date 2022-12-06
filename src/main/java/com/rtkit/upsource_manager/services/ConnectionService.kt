@@ -1,69 +1,14 @@
 package com.rtkit.upsource_manager.services
 
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.Logger
 import org.springframework.stereotype.Service
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.nio.charset.StandardCharsets
 
 @Service
 class ConnectionService {
-
-    private val logger: Logger = LogManager.getLogger(ConnectionService::class.java)
-    fun makeTrialConnection(basicAuth: String): String? {
-        val connectionFactory: ConnectionFactory = TrialConnectionFactory()
-        val connection: Connection = connectionFactory.getConnection()
-        val con: HttpURLConnection = configureConnection(connection.getUrl(), basicAuth)
-        logger.info(con.toString()) // TODO: Убрать
-        return doPostRequestAndGetResponse(con, connection.jsonRequest)
+    fun makeTrialConnection(authData: String): Boolean {
+        return makeRequest(TrialConnectionRequest(authData)).isSuccessful()
     }
 
-
-    private fun configureConnection(url: URL, basicAuth: String): HttpURLConnection {
-        var con: HttpURLConnection? = null
-        try {
-            con = url.openConnection() as HttpURLConnection
-            con.requestMethod = "POST"
-            con.doOutput = true
-            con.setRequestProperty("Accept", "application/json")
-            con.setRequestProperty("Authorization", basicAuth)
-            con.setRequestProperty("Content-Type", "application/json")
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        return con!!
+    fun <REQ : ABaseUpsourceRequest<RESP>, RESP : ABaseUpsourceResponse> makeRequest(request: REQ): RESP {
+        return request.getResponse()
     }
-
-    private fun doPostRequestAndGetResponse(con: HttpURLConnection, jsonRequest: String): String? {
-        val response = StringBuilder()
-        try {
-            con.outputStream.use { os ->
-                val input = jsonRequest.toByteArray(StandardCharsets.UTF_8)
-                os?.write(input, 0, input.size)
-            }
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
-        try {
-            BufferedReader(
-                InputStreamReader(con.inputStream, StandardCharsets.UTF_8)
-            ).use { br ->
-                var responseLine: String?
-                while (br.readLine().also { responseLine = it } != null) {
-                    response.append(responseLine?.trim { it <= ' ' })
-                }
-            }
-        } catch (e: IOException) {
-            logger.info("Ошибка чтения информации")
-            return null
-        }
-        logger.info(response.toString()) // TODO: Убрать
-        return response.toString()
-    }
-
-
 }

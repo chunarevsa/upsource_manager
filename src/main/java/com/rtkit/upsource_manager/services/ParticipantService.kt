@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.entities.prticipant.Role
 import com.rtkit.upsource_manager.entities.prticipant.Participant
+import com.rtkit.upsource_manager.entities.prticipant.Role
 import com.rtkit.upsource_manager.repositories.ParticipantRepository
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -43,4 +43,12 @@ class ParticipantService(
         return roles
     }
 
+    fun getAdmin(): Participant {
+        // TODO: Можно сделать поиск любого пользователя с ролью админ
+        // пока используем первого
+        return participantRepository.findById(1).get()
+    }
+
 }
+
+

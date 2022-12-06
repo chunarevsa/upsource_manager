@@ -10,26 +10,31 @@ public class Participant {
 
     @Id
     @Column(name = "participant_id")
-    @GeneratedValue(strategy =  GenerationType.SEQUENCE, generator = "participant_seq")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "participant_seq")
     @SequenceGenerator(name = "participant_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "login", unique = true, nullable = false)
     private String login;
 
-    @Column(name = "PASSWORD")
-    private String password;
+    @Column(name = "password")
+    private String password = "";
 
-    @Column(name = "IS_ACTIVE", nullable = false)
+    @Column(name = "is_active", nullable = false)
     private Boolean active;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ParticipantStatus status = ParticipantStatus.NOT_VERIFIED;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "participant_authority",
-            joinColumns = { @JoinColumn(name = "participant_id", referencedColumnName = "participant_id") },
-            inverseJoinColumns = { @JoinColumn(name = "role_id", referencedColumnName = "role_id") })
+            joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "participant_id")},
+            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "role_id")})
     private Set<Role> roles = new HashSet<>();
 
-    public Participant() {}
+    public Participant() {
+    }
 
     public Participant(Participant participant) {
         this.id = participant.id;
@@ -100,13 +105,22 @@ public class Participant {
         this.roles = roles;
     }
 
+    public ParticipantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ParticipantStatus status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
-        return "{" +
-                " id='" + getId() + "'" +
-                ", password='" + getPassword() + "'" +
-                ", active='" + isActive() + "'" +
-                ", roles='" + getRoles() + "'" +
-                "}";
+        return "Participant{" +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", active=" + active +
+                ", status=" + status +
+                ", roles=" + roles +
+                '}';
     }
 }
