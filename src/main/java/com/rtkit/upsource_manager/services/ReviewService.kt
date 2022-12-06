@@ -11,13 +11,12 @@ import org.springframework.stereotype.Service
 @Service
 class ReviewService(
     private val protocolService: ProtocolService,
-    @Value(value = "\${defaultTimeToExpired}")
+    @Value(value = "\${review.defaultTimeToExpired}")
     val defaultTimeToExpired: Long
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
     var reviews: MutableList<Review>? = mutableListOf()
-    val value: Long = defaultTimeToExpired
 
     init {
         loadAllReviews()
