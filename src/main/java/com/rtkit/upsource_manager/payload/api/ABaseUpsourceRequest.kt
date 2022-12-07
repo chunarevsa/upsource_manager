@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.payload.api
 
+import org.springframework.beans.factory.annotation.Value
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -14,7 +15,6 @@ import java.nio.charset.StandardCharsets
 abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> {
 
     val projectId: String = "elk"
-    var encodedAuth = "Basic c2VyZ2V5LmNodW5hcmV2OlN2ZW44MzgyNDYwKg=="
 
     private var headers = mutableMapOf<String, String>()
 

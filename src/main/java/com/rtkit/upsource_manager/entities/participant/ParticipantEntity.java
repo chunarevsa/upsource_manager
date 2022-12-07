@@ -4,6 +4,9 @@ import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 
+/**
+ * Участник в конкретном Review.
+ */
 @Entity
 public class ParticipantEntity {
 
@@ -11,7 +14,10 @@ public class ParticipantEntity {
     @Column(name = "participant_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "developer_id", unique = true)
+    /**
+     * Уникальный для конкретного Review (13eb8051-7373-4d2d-8aa5-1f18f18063b9)
+     */
+    @Column(name = "user_id", unique = true)
     @NaturalId
     public String userId;
     public int role;

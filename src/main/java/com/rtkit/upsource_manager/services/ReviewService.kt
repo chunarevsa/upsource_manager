@@ -2,7 +2,7 @@ package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
 import com.rtkit.upsource_manager.payload.api.ReviewsRequest
-import com.rtkit.upsource_manager.payload.api.UserRequest
+import com.rtkit.upsource_manager.payload.api.FullUserInfoDTO
 import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.payload.pacer.review.Review
 import com.rtkit.upsource_manager.repositories.ReviewRepository
@@ -31,7 +31,17 @@ class ReviewService(
             ?: throw Exception("не удалось загрузить ревью")
     }
 
-    fun getReviewsEntityByReviews(reviews: MutableList<Review>) : MutableSet<ReviewEntity> {
+    fun getReviewsEntityByReviews(reviews: MutableList<Review>): MutableSet<ReviewEntity> {
+        val part: MutableSet<Participant> = mutableSetOf()
+        reviews.forEach { review: Review ->
+            review.participants.forEach { participant: Participant ->
+                part.add(participant)
+            }
+        }
+
+        logger.info("====")
+
+
         return reviews.stream().map { review -> ReviewEntity(review) }.collect(Collectors.toSet())
     }
 
@@ -71,7 +81,7 @@ class ReviewService(
     private fun findUsernameById(userId: String): String? {
         if (participants[userId] != null) return participants[userId].toString()
 
-        val participant = protocolService.makeRequest(UserRequest(userId)).getFirstParticipant()
+        val participant = protocolService.makeRequest(FullUserInfoDTO(userId)).getFirstParticipant()
 
         participants[userId] = participant.name
         return participants[userId]
@@ -94,12 +104,12 @@ class ReviewService(
         return reviewRepository.findAll().toMutableSet()
     }
 
-    fun saveReviews(reviews: MutableSet<ReviewEntity>) : MutableSet<ReviewEntity>? {
+    fun saveReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity>? {
         reviews.forEach { review -> saveReviews(review) }
         return reviews.stream().map { review -> saveReviews(review) }.collect(Collectors.toSet())
     }
 
-    private fun saveReviews(review: ReviewEntity) : ReviewEntity {
+    private fun saveReviews(review: ReviewEntity): ReviewEntity {
         return reviewRepository.save(review)
     }
 

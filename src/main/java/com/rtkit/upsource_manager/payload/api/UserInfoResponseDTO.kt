@@ -3,7 +3,7 @@ package com.rtkit.upsource_manager.payload.api
 import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.payload.pacer.review.ParticipantRoot
 
-class UserResponse(
+class UserInfoResponseDTO(
     response: String
 ) : ABaseUpsourceResponse(response){
 
