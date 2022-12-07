@@ -221,12 +221,12 @@ public class ReviewEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReviewEntity that = (ReviewEntity) o;
-        return reviewId.equals(that.reviewId) && updatedAt.equals(that.updatedAt);
+        return reviewId.getReviewId().equals(that.reviewId.getReviewId()) && updatedAt.equals(that.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(reviewId, updatedAt);
+        return Objects.hash(reviewId.getReviewId(), updatedAt);
     }
 }
 

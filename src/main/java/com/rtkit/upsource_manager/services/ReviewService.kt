@@ -85,13 +85,14 @@ class ReviewService(
         //connectionService.makeRequest(CloseRequest())
     }
 
-    fun getOnlyUpdatedReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity> {
-        logger.info("Ревью из парсинга: ${reviews.size}")
-        val allReviews = getAllReviews()
-        logger.info("Ревью из базы: ${allReviews.size}")
-        reviews.retainAll(allReviews)
-        logger.info("Измененных ревью (retainAll): ${reviews.size}")
-        return reviews
+    fun getOnlyUpdatedReviews(reviewsFromRequest: MutableSet<ReviewEntity>): MutableSet<ReviewEntity> {
+        logger.info("reviews from request: ${reviewsFromRequest.size}")
+
+        val reviewsFromDB = getAllReviews()
+        logger.info("reviews from DB: ${reviewsFromDB.size}")
+
+        reviewsFromRequest.removeAll(reviewsFromDB)
+        return reviewsFromRequest
     }
 
     private fun getAllReviews(): MutableSet<ReviewEntity> {

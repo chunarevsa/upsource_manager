@@ -13,12 +13,12 @@ class ProjectService(
 
     @Scheduled(cron = "0 */1 * * * *")
     fun start() {
-        logger.info("Start init ProjectService")
+        logger.info("================== Start init ProjectService ==================")
         val reviews = reviewService.getReviewsEntityByReviews(reviewService.loadAllReviews())
 
         val onlyUpdatedReviews = reviewService.getOnlyUpdatedReviews(reviews)
         reviewService.saveReviews(onlyUpdatedReviews)
-        logger.info("================== ${onlyUpdatedReviews.size} reviews have been updated ==================")
+        logger.info("================== ${onlyUpdatedReviews.size} reviews have been updated ================== \n")
 
 //        getExpiredReviews()
 //        logger.info("================== ${expiredReviewsList.size} Expired reviews have been updated ==================")
