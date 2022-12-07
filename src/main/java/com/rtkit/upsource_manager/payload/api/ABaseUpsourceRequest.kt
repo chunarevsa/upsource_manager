@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.payload.api
 
-import org.springframework.beans.factory.annotation.Value
+import com.rtkit.upsource_manager.config.AdminConfig.Companion.ADMIN_BASIC_AUTH
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -17,6 +17,8 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> {
     val projectId: String = "elk"
 
     private var headers = mutableMapOf<String, String>()
+
+    var basicAuth: String = ADMIN_BASIC_AUTH
 
     abstract fun getRequestURL(): String
     abstract fun getResponse(): RESP
@@ -52,13 +54,11 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> {
     private fun configureConnection(): HttpURLConnection {
         var con: HttpURLConnection? = null
         try {
-
-
             con = getHttpUrl().openConnection() as HttpURLConnection
             con.requestMethod = "POST"
             con.doOutput = true
             con.setRequestProperty("Accept", "application/json")
-            con.setRequestProperty("Authorization", encodedAuth)
+            con.setRequestProperty("Authorization", basicAuth)
             con.setRequestProperty("Content-Type", "application/json")
         } catch (e: IOException) {
             e.printStackTrace()

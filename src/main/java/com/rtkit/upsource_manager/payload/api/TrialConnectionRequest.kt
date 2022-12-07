@@ -11,7 +11,7 @@ class TrialConnectionRequest(
     }
 
     override fun getResponse(): TrialConnectionResponse {
-        encodedAuth = authData
+        basicAuth = authData
         return TrialConnectionResponse(doPostRequestAndReceiveResponse())
     }
 

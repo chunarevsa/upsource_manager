@@ -1,3 +1,8 @@
+### Sittings ###
+auth.txt
+src/main/java/com/rtkit/upsource_manager/config/AdminConfig.kt
+
+### ###
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
@@ -31,4 +36,3 @@ build/
 
 ### VS Code ###
 .vscode/
-auth.txt

@@ -1,8 +1,8 @@
 package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.api.ReviewsRequest
 import com.rtkit.upsource_manager.payload.api.FullUserInfoDTO
+import com.rtkit.upsource_manager.payload.api.ReviewsRequest
 import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.payload.pacer.review.Review
 import com.rtkit.upsource_manager.repositories.ReviewRepository
@@ -17,8 +17,7 @@ import java.util.stream.Collectors
 class ReviewService(
     private val protocolService: ProtocolService,
     private val reviewRepository: ReviewRepository,
-    @Value(value = "\${review.defaultTimeToExpired}")
-    val defaultTimeToExpired: Long
+    @Value(value = "\${review.defaultTimeToExpired}") val defaultTimeToExpired: Long
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
@@ -53,26 +52,21 @@ class ReviewService(
         }
         val expiredDate = Instant.now().minusMillis(timeToExpired)
 
-        reviews
-            .stream()
-            .filter { review: Review -> review.state == 1 }
-            .filter { review: Review ->
+        reviews.stream().filter { review: Review -> review.state == 1 }.filter { review: Review ->
                 Instant.ofEpochMilli(review.getUpdatedAt().toString().toLong()).isBefore(expiredDate)
-            }
-            .forEach { review: Review -> expiredReviewsList.add(review) }
+            }.forEach { review: Review -> expiredReviewsList.add(review) }
 
         return getParticipantName(expiredReviewsList)
     }
 
     private fun getParticipantName(badReviews: MutableList<Review>): List<Review> {
-        badReviews
-            .forEach { review: Review ->
-                review.participants
-                    .forEach { participant: Participant -> participant.name = findUsernameById(participant.userId) }
+        badReviews.forEach { review: Review ->
+                review.participants.forEach { participant: Participant ->
+                        participant.name = findUsernameById(participant.userId)
+                    }
             }
 
-        badReviews
-            .forEach { review: Review ->
+        badReviews.forEach { review: Review ->
                 review.participants.removeIf { participant -> (participant.name == "guest") }
             }
         return badReviews
