@@ -1,17 +1,17 @@
-package com.rtkit.upsource_manager.entities.prticipant;
+package com.rtkit.upsource_manager.entities.developer;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "participant")
-public class Participant {
+@Table(name = "developer")
+public class Developer {
 
     @Id
-    @Column(name = "participant_id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "participant_seq")
-    @SequenceGenerator(name = "participant_seq", allocationSize = 1)
+    @Column(name = "developer_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "developer_seq")
+    @SequenceGenerator(name = "developer_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "login", unique = true, nullable = false)
@@ -25,30 +25,30 @@ public class Participant {
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    private ParticipantStatus status = ParticipantStatus.NOT_VERIFIED;
+    private DeveloperStatus status = DeveloperStatus.NOT_VERIFIED;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "participant_authority",
-            joinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "participant_id")},
+    @JoinTable(name = "developer_authority",
+            joinColumns = {@JoinColumn(name = "developer_id", referencedColumnName = "developer_id")},
             inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "role_id")})
     private Set<Role> roles = new HashSet<>();
 
-    public Participant() {
+    public Developer() {
     }
 
-    public Participant(Participant participant) {
-        this.id = participant.id;
-        this.login = participant.login;
-        this.password = participant.password;
-        this.active = participant.active;
-        this.roles = participant.roles;
+    public Developer(Developer developer) {
+        this.id = developer.id;
+        this.login = developer.login;
+        this.password = developer.password;
+        this.active = developer.active;
+        this.roles = developer.roles;
     }
 
-    public Participant(Long id,
-                       String login,
-                       String password,
-                       Boolean active,
-                       Set<Role> roles) {
+    public Developer(Long id,
+                     String login,
+                     String password,
+                     Boolean active,
+                     Set<Role> roles) {
         this.id = id;
         this.login = login;
         this.password = password;
@@ -58,7 +58,7 @@ public class Participant {
 
     public void addRole(Role role) {
         roles.add(role);
-        role.getParticipants().add(this);
+        role.getDevelopers().add(this);
     }
 
     public void addRoles(Set<Role> roles) {
@@ -105,17 +105,17 @@ public class Participant {
         this.roles = roles;
     }
 
-    public ParticipantStatus getStatus() {
+    public DeveloperStatus getStatus() {
         return status;
     }
 
-    public void setStatus(ParticipantStatus status) {
+    public void setStatus(DeveloperStatus status) {
         this.status = status;
     }
 
     @Override
     public String toString() {
-        return "Participant{" +
+        return "Developer{" +
                 "id=" + id +
                 ", login='" + login + '\'' +
                 ", active=" + active +

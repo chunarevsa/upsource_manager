@@ -30,10 +30,4 @@ open class AuthController(
         return ResponseEntity.ok(jwtAuthenticationResponse)
     }
 
-    @GetMapping("/login2")
-    open fun login2(): ResponseEntity<Any> {
-        projectService.start()
-        return ResponseEntity.ok().body("Ok")
-    }
-
 }

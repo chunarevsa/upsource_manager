@@ -17,7 +17,6 @@ public class Review {
     public DiscussionCounter discussionCounter;
     public boolean isMuted;
     public List<String> branch;
-
     public String description;
 
     public Review(ReviewId reviewId, String createdBy) {
@@ -26,23 +25,6 @@ public class Review {
     }
 
     public Review() {
-    }
-
-    public String getUpsourceLink(String reviewId) {
-        return "https://codereview.ritperm.rt.ru/elk/review/" + reviewId;
-    }
-
-    public String getJiraLink(String title) {
-        try {
-            return title.substring(0, 38);
-        } catch (Exception e) { return "";}
-    }
-
-    public String getClearTitle(String title) {
-        if (title.length() < 39) {
-            return getJiraLink(title);
-        }
-        return title.substring(39);
     }
 
     public void setReviewId(ReviewId reviewId) {

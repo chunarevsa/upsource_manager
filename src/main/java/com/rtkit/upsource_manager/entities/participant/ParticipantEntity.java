@@ -1,6 +1,18 @@
-package com.rtkit.upsource_manager.payload.pacer.review;
+package com.rtkit.upsource_manager.entities.participant;
 
-public class Participant {
+import org.hibernate.annotations.NaturalId;
+
+import javax.persistence.*;
+
+@Entity
+public class ParticipantEntity {
+
+    @Id
+    @Column(name = "participant_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "developer_id", unique = true)
+    @NaturalId
     public String userId;
     public int role;
     public int state;
@@ -40,7 +52,12 @@ public class Participant {
 
     @Override
     public String toString() {
-        return "Participant{" + "userId='" + userId + '\'' + ", role=" + role + ", state=" + state + ", name='" + name + '\'' + '}';
+        return "Participant{" +
+                "userId='" + userId + '\'' +
+                ", role=" + role +
+                ", state=" + state +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
 

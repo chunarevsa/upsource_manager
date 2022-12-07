@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.security.jwt;
 
-import com.rtkit.upsource_manager.entities.prticipant.Participant;
+import com.rtkit.upsource_manager.entities.developer.Developer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,9 +10,9 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 
-public class JwtUser extends Participant implements UserDetails {
+public class JwtUser extends Developer implements UserDetails {
 
-	public JwtUser (final Participant participant) { super(participant); }
+	public JwtUser (final Developer developer) { super(developer); }
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

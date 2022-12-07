@@ -13,7 +13,7 @@ class UserResponse(
         return participantRootObj.getResult().infos
     }
 
-    fun getParticipant() : Participant {
+    fun getFirstParticipant() : Participant {
         return participantRootObj.getResult().infos[0]
     }
 }

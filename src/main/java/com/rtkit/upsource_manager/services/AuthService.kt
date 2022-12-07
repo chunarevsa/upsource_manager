@@ -15,7 +15,7 @@ import java.util.*
 
 @Service
 class AuthService(
-    private val participantService: ParticipantService,
+    private val developerService: DeveloperService,
     private val authenticationManager: AuthenticationManager,
     private val jwtTokenProvider: JwtTokenProvider,
     private val protocolService: ProtocolService
@@ -25,7 +25,7 @@ class AuthService(
     fun authenticateParticipant(login: String, password: String): JwtAuthenticationResponse {
         val authData = getBasicAuthData(login, password)
         validateAuthenticatedData(authData)
-        if (!participantService.participantAlreadyExists(login)) participantService.addNewParticipant(login, password)
+        if (!developerService.developerAlreadyExists(login)) developerService.addNewDeveloper(login, password)
 
         val user = UsernamePasswordAuthenticationToken(login, password)
         val authentication: Authentication = authenticationManager.authenticate(user)

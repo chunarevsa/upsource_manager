@@ -1,12 +1,11 @@
 package com.rtkit.upsource_manager.controllers
 
-import com.rtkit.upsource_manager.services.AuthServiceImpl
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
 
 @Controller
-class OldAuthController(private val authService: AuthServiceImpl) {
+class OldAuthController(
+//    private val authService: AuthServiceImpl
+    ) {
 
 //    @GetMapping
 //    fun validateCon(model: MutableMap<String, Any>): String {

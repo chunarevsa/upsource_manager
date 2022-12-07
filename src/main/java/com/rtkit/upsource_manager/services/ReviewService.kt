@@ -1,19 +1,22 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.entities.review.ReviewEntity
 import com.rtkit.upsource_manager.payload.api.ReviewsRequest
 import com.rtkit.upsource_manager.payload.api.UserRequest
 import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.payload.pacer.review.Review
+import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.time.Instant
+import java.util.stream.Collectors
 
 @Service
 class ReviewService(
     private val protocolService: ProtocolService,
+    private val reviewRepository: ReviewRepository,
     @Value(value = "\${review.defaultTimeToExpired}")
     val defaultTimeToExpired: Long
 ) {
@@ -23,24 +26,13 @@ class ReviewService(
     var expiredReviewsList: MutableList<Review> = mutableListOf()
     var participants: MutableMap<String, String> = mutableMapOf()
 
-    init {
-        updateData()
+    fun loadAllReviews(): MutableList<Review> {
+        return protocolService.makeRequest(ReviewsRequest()).getReview()
+            ?: throw Exception("не удалось загрузить ревью")
     }
 
-    fun loadAllReviews() {
-        reviews =
-            protocolService.makeRequest(ReviewsRequest()).getReview() ?: throw Exception("не удалось загрузить ревью")
-    }
-
-    @Scheduled(cron = "0 */10 * * * *")
-    fun updateData() {
-        reviews.clear()
-        loadAllReviews()
-        logger.info("================== ${reviews.size} reviews have been updated ==================")
-
-        expiredReviewsList.clear()
-        getExpiredReviews()
-        logger.info("================== ${expiredReviewsList.size} Expired reviews have been updated ==================")
+    fun getReviewsEntityByReviews(reviews: MutableList<Review>) : MutableSet<ReviewEntity> {
+        return reviews.stream().map { review -> ReviewEntity(review) }.collect(Collectors.toSet())
     }
 
     fun getExpiredReviews(filter: String = ""): List<Review> {
@@ -79,7 +71,7 @@ class ReviewService(
     private fun findUsernameById(userId: String): String? {
         if (participants[userId] != null) return participants[userId].toString()
 
-        val participant = protocolService.makeRequest(UserRequest(userId)).getParticipant()
+        val participant = protocolService.makeRequest(UserRequest(userId)).getFirstParticipant()
 
         participants[userId] = participant.name
         return participants[userId]
@@ -88,5 +80,28 @@ class ReviewService(
     fun closeReview() {
         //connectionService.makeRequest(CloseRequest())
     }
+
+    fun getOnlyUpdatedReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity> {
+        logger.info("Ревью из парсинга: ${reviews.size}")
+        val allReviews = getAllReviews()
+        logger.info("Ревью из базы: ${allReviews.size}")
+        reviews.retainAll(allReviews)
+        logger.info("Измененных ревью (retainAll): ${reviews.size}")
+        return reviews
+    }
+
+    private fun getAllReviews(): MutableSet<ReviewEntity> {
+        return reviewRepository.findAll().toMutableSet()
+    }
+
+    fun saveReviews(reviews: MutableSet<ReviewEntity>) : MutableSet<ReviewEntity>? {
+        reviews.forEach { review -> saveReviews(review) }
+        return reviews.stream().map { review -> saveReviews(review) }.collect(Collectors.toSet())
+    }
+
+    private fun saveReviews(review: ReviewEntity) : ReviewEntity {
+        return reviewRepository.save(review)
+    }
+
 }
 

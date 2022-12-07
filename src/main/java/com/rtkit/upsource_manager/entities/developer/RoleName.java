@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.entities.prticipant;
+package com.rtkit.upsource_manager.entities.developer;
 
 public enum RoleName {
     ROLE_ADMIN,
