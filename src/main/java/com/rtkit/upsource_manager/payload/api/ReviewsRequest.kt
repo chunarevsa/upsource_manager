@@ -21,7 +21,7 @@ class ReviewsRequest(
     override fun getJsonRequest(): String {
         // TODO: вставить генератор строки
         // пока просто подставляем готовую
-        return "{\"limit\": 20, \"sortBy\": \"id,desc\"}"
+        return "{\"limit\": 2000, \"sortBy\": \"id,desc\"}"
     }
 
 }

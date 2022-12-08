@@ -1,7 +1,10 @@
 package com.rtkit.upsource_manager.payload.pacer.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Review {
     public ReviewId reviewId;
     public String title;

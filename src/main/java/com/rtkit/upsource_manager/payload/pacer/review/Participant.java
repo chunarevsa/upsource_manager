@@ -1,5 +1,8 @@
 package com.rtkit.upsource_manager.payload.pacer.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Participant {
     public String userId;
     public int role;

@@ -3,14 +3,12 @@ package com.rtkit.upsource_manager.services
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
 import com.rtkit.upsource_manager.payload.api.ReviewsRequest
-import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.payload.pacer.review.Review
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.function.Consumer
 import java.util.stream.Collectors
 
 @Service
