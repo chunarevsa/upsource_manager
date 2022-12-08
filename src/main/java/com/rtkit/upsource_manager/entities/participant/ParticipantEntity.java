@@ -1,8 +1,10 @@
 package com.rtkit.upsource_manager.entities.participant;
 
+import com.rtkit.upsource_manager.payload.pacer.review.Participant;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Участник в конкретном Review.
@@ -23,6 +25,15 @@ public class ParticipantEntity {
     public int role;
     public int state;
     public String name;
+
+    public ParticipantEntity() {}
+
+    public ParticipantEntity(Participant participant) {
+        this.userId = participant.userId;
+        this.role = participant.role;
+        this.state = participant.state;
+        this.name = participant.name;
+    }
 
     public String getUserId() {
         return userId;

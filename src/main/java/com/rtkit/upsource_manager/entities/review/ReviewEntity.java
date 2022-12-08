@@ -4,8 +4,11 @@ import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
 import com.rtkit.upsource_manager.payload.pacer.review.Review;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "review")
@@ -26,7 +29,7 @@ public class ReviewEntity {
     @JoinTable(name = "review_participants",
             joinColumns = {@JoinColumn(name = "review_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "participant_id")})
-    public List<ParticipantEntity> participants;
+    public Set<ParticipantEntity> participants;
     public int state;
     public boolean isUnread;
     public boolean isReadyToClose;
@@ -53,12 +56,11 @@ public class ReviewEntity {
     }
 
     /**
-     * Получение сущности из DTO
+     * Получение сущности из DTO (без Participants)
      */
     public ReviewEntity(Review review) {
         this.reviewId = new ReviewIdEntity(review.reviewId);
         this.title = review.title;
-        //this.participants = review.participants;
         this.state = review.state;
         this.isUnread = review.isUnread;
         this.isReadyToClose = review.isReadyToClose;
@@ -71,6 +73,9 @@ public class ReviewEntity {
         this.isMuted = review.isMuted;
         this.branch = review.branch;
         this.description = review.description;
+        if (!review.participants.isEmpty()) {
+            this.participants = review.participants.stream().map(ParticipantEntity::new).collect(Collectors.toSet());
+        }
     }
 
     public String getUpsourceLink(String ReviewIdEntity) {
@@ -112,11 +117,11 @@ public class ReviewEntity {
         this.title = title;
     }
 
-    public List<ParticipantEntity> getParticipants() {
+    public Set<ParticipantEntity> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<ParticipantEntity> participants) {
+    public void setParticipants(Set<ParticipantEntity> participants) {
         this.participants = participants;
     }
 
