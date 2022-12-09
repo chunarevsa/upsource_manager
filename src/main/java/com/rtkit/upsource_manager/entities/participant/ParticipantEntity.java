@@ -17,7 +17,7 @@ public class ParticipantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     /**
-     * Уникальный для конкретного Review (13eb8051-7373-4d2d-8aa5-1f18f18063b9)
+     * (13eb8051-7373-4d2d-8aa5-1f18f18063b9)
      */
     @Column(name = "user_id", unique = true)
     @NaturalId

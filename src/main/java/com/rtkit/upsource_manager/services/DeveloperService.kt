@@ -4,12 +4,12 @@ import com.rtkit.upsource_manager.entities.developer.Developer
 import com.rtkit.upsource_manager.entities.developer.Role
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.payload.api.FullUserInfoDTO
+import com.rtkit.upsource_manager.payload.pacer.review.Participant
 import com.rtkit.upsource_manager.repositories.DeveloperRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.stream.Collectors
 
 @Service
 class DeveloperService(
@@ -32,31 +32,40 @@ class DeveloperService(
         return saveDeveloper(newDeveloper)
     }
 
-    fun findNewDeveloperFromParticipants(participants: MutableSet<ParticipantEntity>) {
+    fun findNewDeveloperFromParticipants(participants: MutableSet<ParticipantEntity>): MutableSet<ParticipantEntity> {
+        logger.info("============= Количество участников:${participants.size} =============")
 
-        val part: MutableSet<ParticipantEntity> = mutableSetOf()
-//        participants.forEach { participant ->
-//            run {
-//                val temp = protocolService.makeRequest(FullUserInfoDTO(participant.userId)).getFirstParticipant()
-//                participant.name = temp.name
-//                part.add(participant)
-//
-//            }
-//        }
-        participants.stream().map { participant ->
-            {
-                val temp = protocolService.makeRequest(FullUserInfoDTO(participant.userId)).getFirstParticipant()
-                participant.name = temp.name
-                part.add(participant)
+        // только уникальные <participant.userId, Participant>
+        // TODO: посмотреть что ещё прилетает в запросе
+        //        {"result":
+//            {"infos":[
+//                {"userId":"7da228a8-6d76-41cd-b88f-cfc1f6f67710",
+//                    "name":"Лихачев Александр Анатольевич",
+//                    "isResolved":true,
+//                    "isMe":false,
+//                    "avatarUrl":"https://codereview.ritperm.rt.ru/hub/api/rest/avatar/7da228a8-6d76-41cd-b88f-cfc1f6f67710",
+//                    "profileUrl":"https://codereview.ritperm.rt.ru/hub/users/7da228a8-6d76-41cd-b88f-cfc1f6f67710",
+//                    "login":"likhachev-aa"}]}}
+        val temp: MutableMap<String, ParticipantEntity> = mutableMapOf()
+
+        try {
+            participants.forEach { participant ->
+                run {
+                    if (temp.containsKey(participant.userId)) {
+                        participant.name = temp[participant.userId]!!.name
+                    } else {
+                        participant.name =
+                            protocolService.makeRequest(FullUserInfoDTO(participant.userId)).getFirstParticipant().name
+                        temp[participant.userId] = participant
+                    }
+                }
             }
+        } catch (e: Exception) {
+            logger.info(e)
         }
 
-        val names: MutableSet<String> = mutableSetOf()
-        part.forEach { part1 -> names.add(part1.name) }
-        names
-
-        logger.info("=============")
-
+        participants.removeIf { participant -> (participant.name == "guest") }
+        return participants
     }
 
     private fun saveDeveloper(developer: Developer): Developer {

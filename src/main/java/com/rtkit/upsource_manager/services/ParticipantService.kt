@@ -16,39 +16,6 @@ class ParticipantService(
 ) {
     private val logger: Logger = LogManager.getLogger(ParticipantService::class.java)
 
-    fun findNewParticipants(onlyUpdatedReviews: MutableSet<ReviewEntity>): MutableSet<ParticipantEntity> {
-        val participantsFromDB = getAllParticipants()
-
-        val participantsFromRequest: MutableSet<ParticipantEntity> = mutableSetOf()
-        onlyUpdatedReviews.forEach { review ->
-            review.participants.forEach { participant ->
-                participantsFromRequest.add(participant)
-            }
-        }
-
-        logger.info("participants from request: $participantsFromRequest")
-        logger.info("participants from db: $participantsFromDB")
-
-        return mutableSetOf() // TODO: убрать
-
-    }
-
-//
-//    val participants: MutableSet<Participant> = mutableSetOf()
-//    reviews.forEach { review: Review ->
-//        review.participants.forEach { participant: Participant ->
-//            participants.add(participant)
-//        }
-//    }
-//
-//
-//    review.participants.forEach(Consumer { participant: Participant? ->
-//        participants.add(
-//            ParticipantEntity(participant)
-//        )
-//    })
-
-
     private fun getAllParticipants(): MutableSet<ParticipantEntity> {
         return participantRepository.findAll().toMutableSet()
     }
@@ -59,15 +26,6 @@ class ParticipantService(
 
     private fun saveParticipant(participantEntity: ParticipantEntity): ParticipantEntity {
         return participantRepository.save(participantEntity)
-    }
-
-    fun getParticipantsFromReviews(reviewsFromRequest: MutableList<Review>): MutableSet<Participant> {
-        return mutableSetOf() // TODO: убрать
-    }
-
-    fun getParticipantEntitiesByParticipants(participants: MutableSet<Participant>): MutableSet<ParticipantEntity> {
-
-        return mutableSetOf() // TODO: убрать
     }
 
 
