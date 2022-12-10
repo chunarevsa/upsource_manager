@@ -3,8 +3,8 @@ package com.rtkit.upsource_manager.services
 import com.rtkit.upsource_manager.entities.developer.Developer
 import com.rtkit.upsource_manager.entities.developer.Role
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
-import com.rtkit.upsource_manager.payload.api.FullUserInfoDTO
-import com.rtkit.upsource_manager.payload.pacer.review.Participant
+import com.rtkit.upsource_manager.payload.api.request.UserInfoRequestDTO
+import com.rtkit.upsource_manager.payload.api.response.userInfo.Result
 import com.rtkit.upsource_manager.repositories.DeveloperRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -35,34 +35,21 @@ class DeveloperService(
     fun findNewDeveloperFromParticipants(participants: MutableSet<ParticipantEntity>): MutableSet<ParticipantEntity> {
         logger.info("============= Количество участников:${participants.size} =============")
 
-        // только уникальные <participant.userId, Participant>
-        // TODO: посмотреть что ещё прилетает в запросе
-        //        {"result":
-//            {"infos":[
-//                {"userId":"7da228a8-6d76-41cd-b88f-cfc1f6f67710",
-//                    "name":"Лихачев Александр Анатольевич",
-//                    "isResolved":true,
-//                    "isMe":false,
-//                    "avatarUrl":"https://codereview.ritperm.rt.ru/hub/api/rest/avatar/7da228a8-6d76-41cd-b88f-cfc1f6f67710",
-//                    "profileUrl":"https://codereview.ritperm.rt.ru/hub/users/7da228a8-6d76-41cd-b88f-cfc1f6f67710",
-//                    "login":"likhachev-aa"}]}}
-        val temp: MutableMap<String, ParticipantEntity> = mutableMapOf()
-
-        try {
-            participants.forEach { participant ->
-                run {
-                    if (temp.containsKey(participant.userId)) {
-                        participant.name = temp[participant.userId]!!.name
-                    } else {
-                        participant.name =
-                            protocolService.makeRequest(FullUserInfoDTO(participant.userId)).getFirstParticipant().name
-                        temp[participant.userId] = participant
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            logger.info(e)
+        val listUserIds = mutableListOf<String>()
+        participants.forEach { participant ->
+            if (!listUserIds.contains(participant.userId)) listUserIds.add(participant.userId)
         }
+
+        // Получаю список всех userId из сущности developer
+        val allDev = developerRepository.findAll()
+        val listUserIdsFromDb = mutableListOf<String>()
+        allDev.forEach { dev -> dev.participants.forEach { participant -> listUserIdsFromDb.add(participant.userId) } }
+
+        listUserIds.removeAll(listUserIdsFromDb)
+        listUserIds.forEach { userId -> logger.info("=== Найден новый dev: $userId") }
+
+        val userInfos = mutableListOf<Result?>()
+        listUserIds.forEach { userId -> userInfos.add(protocolService.makeRequest(UserInfoRequestDTO(userId))?.result) }
 
         participants.removeIf { participant -> (participant.name == "guest") }
         return participants

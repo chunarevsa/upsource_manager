@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.payload.api.TrialConnectionRequest
+import com.rtkit.upsource_manager.payload.api.request.TrialConnectionRequest
 import com.rtkit.upsource_manager.payload.auth.JwtAuthenticationResponse
 import com.rtkit.upsource_manager.security.jwt.JwtTokenProvider
 import com.rtkit.upsource_manager.security.jwt.JwtUser
@@ -50,9 +50,8 @@ class AuthService(
     }
 
     private fun validateAuthenticatedData(authData: String) {
-        if (!protocolService.makeRequest(TrialConnectionRequest(authData))
-                .isSuccessful()
-        ) throw Exception("Authenticated data is not validated")
+        val makeRequest = protocolService.makeRequest(TrialConnectionRequest(authData).apply { setAuth(authData) })
+            ?: throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }
 }

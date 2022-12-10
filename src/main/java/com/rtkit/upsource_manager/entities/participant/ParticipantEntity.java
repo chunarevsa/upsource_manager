@@ -1,10 +1,10 @@
 package com.rtkit.upsource_manager.entities.participant;
 
-import com.rtkit.upsource_manager.payload.pacer.review.Participant;
-import org.hibernate.annotations.NaturalId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rtkit.upsource_manager.entities.developer.Developer;
+import com.rtkit.upsource_manager.payload.api.response.reviewList.Participant;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * Участник в конкретном Review.
@@ -19,20 +19,23 @@ public class ParticipantEntity {
     /**
      * (13eb8051-7373-4d2d-8aa5-1f18f18063b9)
      */
-    @Column(name = "user_id", unique = true)
-    @NaturalId
+    @Column(name = "user_id")
     public String userId;
     public int role;
     public int state;
     public String name;
 
+    @JsonIgnore
+    @ManyToOne (fetch = FetchType.LAZY)
+    @JoinColumn (name = "developer_id", insertable = false, updatable = false)
+    private Developer developer;
+
     public ParticipantEntity() {}
 
     public ParticipantEntity(Participant participant) {
-        this.userId = participant.userId;
-        this.role = participant.role;
-        this.state = participant.state;
-        this.name = participant.name;
+        this.userId = participant.getUserId();
+        this.role = participant.getRole();
+        this.state = participant.getState();
     }
 
     public String getUserId() {

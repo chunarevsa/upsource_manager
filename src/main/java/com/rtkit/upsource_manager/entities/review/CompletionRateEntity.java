@@ -1,7 +1,6 @@
 package com.rtkit.upsource_manager.entities.review;
 
-import com.rtkit.upsource_manager.payload.pacer.review.CompletionRate;
-import org.hibernate.annotations.NaturalId;
+import com.rtkit.upsource_manager.payload.api.response.reviewList.CompletionRate;
 
 import javax.persistence.*;
 
@@ -20,9 +19,9 @@ public class CompletionRateEntity {
     public boolean hasConcern;
 
     public CompletionRateEntity(CompletionRate completionRate) {
-        this.completedCount = completionRate.completedCount;
-        this.reviewersCount = completionRate.reviewersCount;
-        this.hasConcern = completionRate.hasConcern;
+        this.completedCount = completionRate.getCompletedCount();
+        this.reviewersCount = completionRate.getReviewersCount();
+        this.hasConcern = completionRate.getHasConcern();
     }
 
     public CompletionRateEntity() {

@@ -2,8 +2,8 @@ package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.api.ReviewsRequest
-import com.rtkit.upsource_manager.payload.pacer.review.Review
+import com.rtkit.upsource_manager.payload.api.request.ReviewsRequest
+import com.rtkit.upsource_manager.payload.api.response.reviewList.Review
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -20,7 +20,7 @@ class ReviewService(
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
     fun loadAllReviews(): MutableList<Review> {
-        return protocolService.makeRequest(ReviewsRequest()).getReview()
+        return protocolService.makeRequest(ReviewsRequest())?.result?.reviews
             ?: throw Exception("не удалось загрузить ревью")
     }
 

@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.entities.review;
 
-import com.rtkit.upsource_manager.payload.pacer.review.DiscussionCounter;
+import com.rtkit.upsource_manager.payload.api.response.reviewList.DiscussionCounter;
 
 import javax.persistence.*;
 
@@ -19,10 +19,10 @@ public class DiscussionCounterEntity {
     public int resolvedCount;
 
     public DiscussionCounterEntity(DiscussionCounter discussionCounter) {
-        this.count = discussionCounter.count;
-        this.hasUnresolved = discussionCounter.hasUnresolved;
-        this.unresolvedCount = discussionCounter.unresolvedCount;
-        this.resolvedCount = discussionCounter.resolvedCount;
+        this.count = discussionCounter.getCount();
+        this.hasUnresolved = discussionCounter.getHasUnresolved();
+        this.unresolvedCount = discussionCounter.getUnresolvedCount();
+        this.resolvedCount = discussionCounter.getResolvedCount();
     }
 
     public DiscussionCounterEntity() {

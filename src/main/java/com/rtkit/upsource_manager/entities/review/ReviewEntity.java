@@ -1,10 +1,9 @@
 package com.rtkit.upsource_manager.entities.review;
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
-import com.rtkit.upsource_manager.payload.pacer.review.Review;
+import com.rtkit.upsource_manager.payload.api.response.reviewList.Review;
 
 import javax.persistence.*;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -59,22 +58,22 @@ public class ReviewEntity {
      * Получение сущности из DTO (без Participants)
      */
     public ReviewEntity(Review review) {
-        this.reviewId = new ReviewIdEntity(review.reviewId);
-        this.title = review.title;
-        this.state = review.state;
-        this.isUnread = review.isUnread;
-        this.isReadyToClose = review.isReadyToClose;
-        this.isRemoved = review.isRemoved;
-        this.createdAt = (Long) review.createdAt;
-        this.createdBy = review.createdBy;
-        this.updatedAt = (Long) review.updatedAt;
-        this.completionRate = new CompletionRateEntity(review.completionRate);
-        this.discussionCounter = new DiscussionCounterEntity(review.discussionCounter);
-        this.isMuted = review.isMuted;
+        this.reviewId = new ReviewIdEntity(review.getReviewId());
+        this.title = review.getTitle();
+        this.state = review.getState();
+        this.isUnread = review.getIsUnread();
+        this.isReadyToClose = review.getIsReadyToClose();
+        this.isRemoved = review.getIsRemoved();
+        this.createdAt = (Long) review.getCreatedAt();
+        this.createdBy = review.getCreatedBy();
+        this.updatedAt = (Long) review.getUpdatedAt();
+        this.completionRate = new CompletionRateEntity(review.getCompletionRate());
+        this.discussionCounter = new DiscussionCounterEntity(review.getDiscussionCounter());
+        this.isMuted = review.getIsMuted();
         this.branch = review.branch;
         this.description = review.description;
-        if (!review.participants.isEmpty()) {
-            this.participants = review.participants.stream().map(ParticipantEntity::new).collect(Collectors.toSet());
+        if (!review.getParticipants().isEmpty()) {
+            this.participants = review.getParticipants().stream().map(ParticipantEntity::new).collect(Collectors.toSet());
         }
     }
 

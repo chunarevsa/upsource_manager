@@ -1,7 +1,10 @@
 package com.rtkit.upsource_manager.entities.developer;
 
+import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
+
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,6 +22,10 @@ public class Developer {
 
     @Column(name = "password")
     private String password = "";
+
+    @OneToMany (cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "developer_id")
+    private List<ParticipantEntity> participants;
 
     @Column(name = "is_active", nullable = false)
     private Boolean active;
@@ -99,6 +106,14 @@ public class Developer {
 
     public Set<Role> getRoles() {
         return this.roles;
+    }
+
+    public List<ParticipantEntity> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<ParticipantEntity> participants) {
+        this.participants = participants;
     }
 
     public void setRoles(Set<Role> roles) {

@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.entities.review;
 
-import com.rtkit.upsource_manager.payload.pacer.review.ReviewId;
+import com.rtkit.upsource_manager.payload.api.response.reviewList.ReviewId;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -22,8 +22,8 @@ public class ReviewIdEntity {
 	public String reviewId;
 
 	public ReviewIdEntity(ReviewId reviewId) {
-		this.projectId = reviewId.projectId;
-		this.reviewId = reviewId.reviewId;
+		this.projectId = reviewId.getProjectId();
+		this.reviewId = reviewId.getReviewId();
 	}
 
 	public String getProjectId() {

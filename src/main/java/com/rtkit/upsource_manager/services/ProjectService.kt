@@ -1,8 +1,7 @@
 package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.pacer.review.Participant
-import com.rtkit.upsource_manager.payload.pacer.review.Review
+import com.rtkit.upsource_manager.payload.api.response.reviewList.Review
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.scheduling.annotation.Scheduled
@@ -26,8 +25,8 @@ class ProjectService(
         val participants = reviewService.getParticipantsFromReview(onlyUpdatedReviews)
         developerService.findNewDeveloperFromParticipants(participants)
 
-        participantService.saveParticipants(participants)
-        reviewService.saveReviews(onlyUpdatedReviews)
+//        participantService.saveParticipants(participants)
+//        reviewService.saveReviews(onlyUpdatedReviews)
         logger.info("================== ${onlyUpdatedReviews.size} reviews have been updated ================== \n")
 
 //        getExpiredReviews()
