@@ -20,7 +20,7 @@ class ReviewService(
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
     fun loadAllReviews(): MutableList<Review> {
-        return protocolService.makeRequest(ReviewsRequest())?.result?.reviews
+        return protocolService.makeRequest(ReviewsRequest(limit = 20))?.result?.reviews
             ?: throw Exception("не удалось загрузить ревью")
     }
 

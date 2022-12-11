@@ -50,7 +50,7 @@ class AuthService(
     }
 
     private fun validateAuthenticatedData(authData: String) {
-        val makeRequest = protocolService.makeRequest(TrialConnectionRequest(authData).apply { setAuth(authData) })
+        protocolService.makeRequest(TrialConnectionRequest().apply { setAuth(authData) })
             ?: throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }

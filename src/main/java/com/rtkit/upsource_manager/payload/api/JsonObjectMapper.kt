@@ -10,7 +10,7 @@ open class JsonObjectMapper : IMapper {
         return try {
             mapper!!.writeValueAsString(value)
         } catch (e: Exception) {
-            throw Exception(e) // TODO:
+            throw Exception(e) // TODO: Exception(e)
         }
     }
 

@@ -51,6 +51,8 @@ class DeveloperService(
         val userInfos = mutableListOf<Result?>()
         listUserIds.forEach { userId -> userInfos.add(protocolService.makeRequest(UserInfoRequestDTO(userId))?.result) }
 
+        // TODO: Сохранение DEV
+
         participants.removeIf { participant -> (participant.name == "guest") }
         return participants
     }

@@ -13,9 +13,9 @@ public interface IMapper extends Serializable {
      */
     String writeValueAsString(IMappable value) throws ProtocolException;
 
-    default String writeValueAsString(Object value) throws ProtocolException {
-        return "";
-    }
+//    default String writeValueAsString(Object value) throws ProtocolException {
+//        return "";
+//    }
 
     /**
      * Десерелизация

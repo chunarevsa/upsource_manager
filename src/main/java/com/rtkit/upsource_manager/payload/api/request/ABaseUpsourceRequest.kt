@@ -1,5 +1,7 @@
 package com.rtkit.upsource_manager.payload.api.request
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.rtkit.upsource_manager.config.AdminConfig.Companion.ADMIN_BASIC_AUTH
 import com.rtkit.upsource_manager.payload.api.IMappable
 import com.rtkit.upsource_manager.payload.api.IMapper
@@ -20,14 +22,22 @@ import java.util.concurrent.ConcurrentHashMap
  */
 abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
 
+    @JsonProperty("projectId")
     val projectId: String = "elk"
 
+    @JsonIgnore
     private var headers = mutableMapOf<String, String>()
 
+    @JsonIgnore
     var basicAuth: String = ADMIN_BASIC_AUTH
 
+    @JsonIgnore
     abstract fun getRequestURL(): String
-    abstract fun getJsonRequest(): String
+
+    private fun getJsonRequest(): String {
+        return getMapper().writeValueAsString(this)
+    }
+
     protected abstract fun getMapper(): IMapper
 
     fun process(): RESP? {
@@ -47,7 +57,6 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
         val type: Type = getGenericParameterClass(errorMessage)
         val arguments = (type as ParameterizedType).actualTypeArguments
 
-        // todo! если параметр и сам параметризуемый - то будет CCE. См кусок кода в com/dart/rtk/util/db/calls/IndexedCall.java:497
         if (arguments.size > 0) {
             for (argument in arguments) {
                 if (argument is ParameterizedType) {
@@ -96,7 +105,8 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
         val response = StringBuilder()
         try {
             con.outputStream.use { os ->
-                val input = getJsonRequest().toByteArray(StandardCharsets.UTF_8)
+                val req = getJsonRequest()
+                val input = req.toByteArray(StandardCharsets.UTF_8)
                 os?.write(input, 0, input.size)
             }
         } catch (e: IOException) {
@@ -142,8 +152,6 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
         }
         return url ?: throw Exception("Пустой URL")
     }
-
-
 
 }
 
