@@ -2,7 +2,7 @@ package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.api.request.ReviewsRequest
+import com.rtkit.upsource_manager.payload.api.request.ReviewsRequestDTO
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -21,7 +21,7 @@ class ReviewService(
 
     fun updateReviews() {
         val reviewEntitiesFromDB = findAll()
-        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequest(limit = 20))?.result?.reviews
+        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequestDTO(limit = 20))?.result?.reviews
             ?: throw Exception("не удалось загрузить ревью")
 
         // Из Review -> ReviewEntity, Participant -> ParticipantEntity

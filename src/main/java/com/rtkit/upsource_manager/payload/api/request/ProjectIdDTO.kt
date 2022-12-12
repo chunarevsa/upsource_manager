@@ -5,7 +5,7 @@ import com.rtkit.upsource_manager.payload.api.IMapper
 import com.rtkit.upsource_manager.payload.api.JsonObjectMapper
 import com.rtkit.upsource_manager.payload.api.response.projectInfo.ProjectInfoDTO
 
-class TrialConnectionRequest : ABaseUpsourceRequest<ProjectInfoDTO>() {
+class ProjectIdDTO : ABaseUpsourceRequest<ProjectInfoDTO>() {
 
     override fun getRequestURL(): String {
         return ERequest.GET_PROJECT_INFO.requestUrl

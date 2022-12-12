@@ -6,7 +6,7 @@ import com.rtkit.upsource_manager.payload.api.IMapper
 import com.rtkit.upsource_manager.payload.api.JsonObjectMapper
 import com.rtkit.upsource_manager.payload.api.response.reviewList.ReviewListDTO
 
-class ReviewsRequest(
+class ReviewsRequestDTO(
     @JsonProperty("limit")
     val limit: Int,
     @JsonProperty("query")

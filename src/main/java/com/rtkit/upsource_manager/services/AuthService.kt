@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.payload.api.request.TrialConnectionRequest
+import com.rtkit.upsource_manager.payload.api.request.ProjectIdDTO
 import com.rtkit.upsource_manager.payload.auth.JwtAuthenticationResponse
 import com.rtkit.upsource_manager.security.jwt.JwtTokenProvider
 import com.rtkit.upsource_manager.security.jwt.JwtUser
@@ -51,7 +51,7 @@ class AuthService(
 
     /** Нужно делать при каждом логине, чтобы пароль был актуальный */
     private fun validateAuthenticatedData(authData: String) {
-        protocolService.makeRequest(TrialConnectionRequest().apply { setAuth(authData) })
+        protocolService.makeRequest(ProjectIdDTO().apply { setAuth(authData) })
             ?: throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }

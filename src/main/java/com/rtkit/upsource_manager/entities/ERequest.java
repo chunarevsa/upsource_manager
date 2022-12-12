@@ -5,15 +5,18 @@ package com.rtkit.upsource_manager.entities;
  */
 public enum ERequest {
 
-    /**
-     * Информация о проекте
-     */
-    GET_PROJECT_INFO("getProjectInfo", "", "ProjectInfoDTO"),
-    GET_SUM_CHANGES("getReviewSummaryChanges", "", ""),
-    GET_REVIEWS("getReviews", "", "ReviewListDTO"),
-    CLOSE_REVIEW("closeReview", "", ""),
+    /** Информация о проекте */
+    GET_PROJECT_INFO("getProjectInfo", "ProjectIdDTO", "ProjectInfoDTO"),
+    /** Возвращает список изменений (сумма всех правок) */
+    GET_SUM_CHANGES("getReviewSummaryChanges", "ReviewSummaryChangesRequestDTO", "ReviewSummaryChangesResponseDTO"),
+    /** Получения ревью */
+    GET_REVIEWS("getReviews", "ReviewsRequestDTO", "ReviewListDTO"),
+    /** Закрытие ревью */
+    CLOSE_REVIEW("closeReview", "CloseReviewRequestDTO", "CloseReviewResponseDTO"),
+    /** Получение инфы по конкретном разработчику */
     USER_INFO("getUserInfo", "UserInfoRequestDTO", "UserInfoResponseDTO"),
-    FIND_USERS("/findUsers", "", "");
+    /** Получение инфы о всех разработчиках в проекте */
+    FIND_USERS("findUsers", "FindUsersRequestDTO", "UserInfoResponseDTO");
 
     private final String method;
     private final String request;
