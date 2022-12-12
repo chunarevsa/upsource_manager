@@ -22,15 +22,14 @@ import java.util.concurrent.ConcurrentHashMap
  */
 abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
 
+    private val reqRespClassMapping = ConcurrentHashMap<Class<out ABaseUpsourceRequest<RESP>>, Class<out RESP>>()
+
     @JsonProperty("projectId")
     val projectId: String = "elk"
-
     @JsonIgnore
     private var headers = mutableMapOf<String, String>()
-
     @JsonIgnore
     var basicAuth: String = ADMIN_BASIC_AUTH
-
     @JsonIgnore
     abstract fun getRequestURL(): String
 
@@ -39,66 +38,6 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
     }
 
     protected abstract fun getMapper(): IMapper
-
-    fun process(): RESP? {
-        val responseString = doPostRequestAndReceiveResponse()
-        return getMapper().readValue(responseString, getActualResponseClass());
-    }
-
-    private val reqRespClassMapping = ConcurrentHashMap<Class<out ABaseUpsourceRequest<RESP>>, Class<out RESP>>()
-
-    protected open fun getActualResponseClass(): Class<out RESP?>? {
-        if (reqRespClassMapping.containsKey(javaClass)) {
-            return reqRespClassMapping[javaClass]!!
-        }
-
-        val errorMessage =
-            "Не указан дженерик ответа в объявлении класса '" + javaClass.simpleName + "', пожалуйста, исправьте это."
-        val type: Type = getGenericParameterClass(errorMessage)
-        val arguments = (type as ParameterizedType).actualTypeArguments
-
-        if (arguments.size > 0) {
-            for (argument in arguments) {
-                if (argument is ParameterizedType) {
-                    val respClass = argument.rawType as Class<out RESP?>
-                    reqRespClassMapping[javaClass] = respClass
-                    return respClass
-                } else if (ABaseUpsourceResponse::class.java.isAssignableFrom(argument as Class<*>)) {
-                    val respClass = argument as Class<out RESP?>
-                    reqRespClassMapping[javaClass] = respClass
-                    return respClass
-                }
-            }
-        }
-        throw java.lang.IllegalArgumentException(errorMessage)
-    }
-
-
-    open fun getGenericParameterClass(errorMessage: String): Type {
-        // clazz - текущий рассматриваемый класс
-        var clazz: Class<*> = this.javaClass
-        var genericSuperclass = clazz.genericSuperclass
-        val genericClass: Class<*> = ParameterizedType::class.java
-        // Прекращаем работу если genericClass не является предком clazz.
-        require(
-            !(!genericClass.isAssignableFrom(genericSuperclass.javaClass) &&
-                    !genericClass.isAssignableFrom((genericSuperclass as Class<*>).genericSuperclass.javaClass))
-        ) {
-            errorMessage
-        }
-        while (true) {
-            try {
-                genericSuperclass = clazz.genericSuperclass
-                clazz = if (genericSuperclass is ParameterizedType) {
-                    return genericSuperclass
-                } else {
-                    genericSuperclass as Class<*>
-                }
-            } catch (e: Exception) {
-                throw IllegalArgumentException(errorMessage)
-            }
-        }
-    }
 
     private fun doPostRequestAndReceiveResponse(): String {
         val con = configureConnection()
@@ -151,6 +90,64 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
             e.printStackTrace()
         }
         return url ?: throw Exception("Пустой URL")
+    }
+
+    fun process(): RESP? {
+        val responseString = doPostRequestAndReceiveResponse()
+        return getMapper().readValue(responseString, getActualResponseClass());
+    }
+
+    protected open fun getActualResponseClass(): Class<out RESP?>? {
+        if (reqRespClassMapping.containsKey(javaClass)) {
+            return reqRespClassMapping[javaClass]!!
+        }
+
+        val errorMessage =
+            "Не указан дженерик ответа в объявлении класса '" + javaClass.simpleName + "', пожалуйста, исправьте это."
+        val type: Type = getGenericParameterClass(errorMessage)
+        val arguments = (type as ParameterizedType).actualTypeArguments
+
+        if (arguments.size > 0) {
+            for (argument in arguments) {
+                if (argument is ParameterizedType) {
+                    val respClass = argument.rawType as Class<out RESP?>
+                    reqRespClassMapping[javaClass] = respClass
+                    return respClass
+                } else if (ABaseUpsourceResponse::class.java.isAssignableFrom(argument as Class<*>)) {
+                    val respClass = argument as Class<out RESP?>
+                    reqRespClassMapping[javaClass] = respClass
+                    return respClass
+                }
+            }
+        }
+        throw java.lang.IllegalArgumentException(errorMessage)
+    }
+
+
+    open fun getGenericParameterClass(errorMessage: String): Type {
+        // clazz - текущий рассматриваемый класс
+        var clazz: Class<*> = this.javaClass
+        var genericSuperclass = clazz.genericSuperclass
+        val genericClass: Class<*> = ParameterizedType::class.java
+        // Прекращаем работу если genericClass не является предком clazz.
+        require(
+            !(!genericClass.isAssignableFrom(genericSuperclass.javaClass) &&
+                    !genericClass.isAssignableFrom((genericSuperclass as Class<*>).genericSuperclass.javaClass))
+        ) {
+            errorMessage
+        }
+        while (true) {
+            try {
+                genericSuperclass = clazz.genericSuperclass
+                clazz = if (genericSuperclass is ParameterizedType) {
+                    return genericSuperclass
+                } else {
+                    genericSuperclass as Class<*>
+                }
+            } catch (e: Exception) {
+                throw IllegalArgumentException(errorMessage)
+            }
+        }
     }
 
 }
