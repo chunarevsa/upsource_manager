@@ -17,13 +17,28 @@ public class Developer {
     @SequenceGenerator(name = "developer_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "login", unique = true, nullable = false)
+    @Column(name = "login", unique = true)
     private String login;
 
     @Column(name = "password")
     private String password = "";
 
-    @OneToMany (cascade = CascadeType.ALL, orphanRemoval = true)
+    @Column(name = "userId")
+    private String userId;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "avatarUrl")
+    private String avatarUrl;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "profileUrl")
+    private String profileUrl;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "developer_id")
     private List<ParticipantEntity> participants;
 
@@ -51,18 +66,6 @@ public class Developer {
         this.roles = developer.roles;
     }
 
-    public Developer(Long id,
-                     String login,
-                     String password,
-                     Boolean active,
-                     Set<Role> roles) {
-        this.id = id;
-        this.login = login;
-        this.password = password;
-        this.active = active;
-        this.roles = roles;
-    }
-
     public void addRole(Role role) {
         roles.add(role);
         role.getDevelopers().add(this);
@@ -73,11 +76,11 @@ public class Developer {
     }
 
     public Long getId() {
-        return this.id;
+        return id;
     }
 
     public String getLogin() {
-        return this.login;
+        return login;
     }
 
     public void setLogin(String login) {
@@ -85,27 +88,51 @@ public class Developer {
     }
 
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
     }
 
-    public Boolean isActive() {
-        return this.active;
+    public String getUserId() {
+        return userId;
     }
 
-    public Boolean getActive() {
-        return this.active;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public void setActive(Boolean active) {
-        this.active = active;
+    public String getName() {
+        return name;
     }
 
-    public Set<Role> getRoles() {
-        return this.roles;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getProfileUrl() {
+        return profileUrl;
+    }
+
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 
     public List<ParticipantEntity> getParticipants() {
@@ -116,8 +143,12 @@ public class Developer {
         this.participants = participants;
     }
 
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
+    public Boolean isActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public DeveloperStatus getStatus() {
@@ -128,14 +159,11 @@ public class Developer {
         this.status = status;
     }
 
-    @Override
-    public String toString() {
-        return "Developer{" +
-                "id=" + id +
-                ", login='" + login + '\'' +
-                ", active=" + active +
-                ", status=" + status +
-                ", roles=" + roles +
-                '}';
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

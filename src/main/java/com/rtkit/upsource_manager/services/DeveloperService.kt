@@ -1,10 +1,9 @@
 package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.developer.Developer
+import com.rtkit.upsource_manager.entities.developer.DeveloperStatus
 import com.rtkit.upsource_manager.entities.developer.Role
-import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
-import com.rtkit.upsource_manager.payload.api.request.UserInfoRequestDTO
-import com.rtkit.upsource_manager.payload.api.response.userInfo.Result
+import com.rtkit.upsource_manager.payload.api.response.userInfo.Info
 import com.rtkit.upsource_manager.repositories.DeveloperRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -20,52 +19,83 @@ class DeveloperService(
 ) {
     private val logger: Logger = LogManager.getLogger(DeveloperService::class.java)
 
-    fun addNewDeveloper(login: String, password: String = ""): Developer {
+    fun validateDeveloper(login: String, password: String) {
+        if (!developerAlreadyExists(login)) {
+            addNewDeveloper(login, password)
+        }
+
+        val dev = findByLogin(login)
+        if (dev.password.isNullOrEmpty() && dev.status == DeveloperStatus.NOT_VERIFIED) {
+            dev.status = DeveloperStatus.VERIFIED
+            logger.info("========== Новый верифицированный пользователь: ${dev.name} ==========")
+        }
+
+
+        dev.password = passwordEncoder.encode(password)
+        saveDeveloper(dev)
+    }
+
+    fun updateDevelopers() {
+        val devFromDB = findAll()
+        val devFromRequest = protocolService.makeRequest(FindUsersRequestDTO(limit = 500))?.result?.infos
+            ?: throw Exception()
+
+        val listUserIdsFromDb = mutableListOf<String>()
+        val listUserIdsRequest = mutableListOf<String>()
+
+        devFromDB.forEach { dev -> listUserIdsFromDb.add(dev.userId) }
+        devFromRequest.forEach { dev -> listUserIdsRequest.add(dev.userId) }
+
+        // Если такой ид уже есть в БД - удаляем
+        listUserIdsRequest.removeAll(listUserIdsFromDb)
+        // Оставляем инфу только о новых разработчиках
+        devFromRequest.removeIf { dev -> (!listUserIdsRequest.contains(dev.userId)) }
+        devFromRequest.removeIf { dev -> (dev.name == "guest") }
+
+        devFromRequest.forEach { dev -> addDevFromRequest(dev) }
+    }
+
+    private fun findAll(): MutableSet<Developer> {
+        return developerRepository.findAll().toMutableSet()
+    }
+
+    private fun addDevFromRequest(dev: Info) {
+        val newDev = Developer().apply {
+            login = dev.login
+            password = ""
+            userId = dev.userId
+            name = dev.name
+            avatarUrl = dev.avatarUrl
+            email = dev.email
+            profileUrl = dev.profileUrl
+            isActive = true
+            status = DeveloperStatus.NOT_VERIFIED
+        }
+        saveDeveloper(newDev)
+        logger.info("========== Добавлен новый разработчик: ${newDev.name} ==========")
+    }
+
+
+    private fun addNewDeveloper(login: String, password: String): Developer {
         val newDeveloper = Developer()
         val isAdmin = true // TODO: Пока все админы
-        if (password.isNotEmpty()) {
-            newDeveloper.password = passwordEncoder.encode(password)
-        }
+        newDeveloper.password = passwordEncoder.encode(password)
         newDeveloper.login = login
         newDeveloper.addRoles(getRoles(isAdmin))
         newDeveloper.isActive = true
+        newDeveloper.status = DeveloperStatus.NO_INFO
         return saveDeveloper(newDeveloper)
-    }
-
-    fun findNewDeveloperFromParticipants(participants: MutableSet<ParticipantEntity>): MutableSet<ParticipantEntity> {
-        logger.info("============= Количество участников:${participants.size} =============")
-
-        val listUserIds = mutableListOf<String>()
-        participants.forEach { participant ->
-            if (!listUserIds.contains(participant.userId)) listUserIds.add(participant.userId)
-        }
-
-        // Получаю список всех userId из сущности developer
-        val allDev = developerRepository.findAll()
-        val listUserIdsFromDb = mutableListOf<String>()
-        allDev.forEach { dev -> dev.participants.forEach { participant -> listUserIdsFromDb.add(participant.userId) } }
-
-        listUserIds.removeAll(listUserIdsFromDb)
-        listUserIds.forEach { userId -> logger.info("=== Найден новый dev: $userId") }
-
-        val userInfos = mutableListOf<Result?>()
-        listUserIds.forEach { userId -> userInfos.add(protocolService.makeRequest(UserInfoRequestDTO(userId))?.result) }
-
-        // TODO: Сохранение DEV
-
-        participants.removeIf { participant -> (participant.name == "guest") }
-        return participants
     }
 
     private fun saveDeveloper(developer: Developer): Developer {
         return developerRepository.save(developer)
     }
 
-    fun developerAlreadyExists(login: String): Boolean {
+    private fun developerAlreadyExists(login: String): Boolean {
         return developerRepository.existsByLogin(login)
     }
 
-    fun findByLogin(login: String): Developer {
+    private fun findByLogin(login: String): Developer {
         val developer = developerRepository.findByLogin(login)
         return if (developer.isPresent) developer.get() else throw Exception("Participant is not exists")
     }
@@ -77,6 +107,7 @@ class DeveloperService(
         }
         return roles
     }
+
 
 }
 

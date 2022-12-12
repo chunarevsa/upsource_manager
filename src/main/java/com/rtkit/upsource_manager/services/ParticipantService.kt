@@ -13,10 +13,6 @@ class ParticipantService(
 ) {
     private val logger: Logger = LogManager.getLogger(ParticipantService::class.java)
 
-    private fun getAllParticipants(): MutableSet<ParticipantEntity> {
-        return participantRepository.findAll().toMutableSet()
-    }
-
     fun saveParticipants(participants: MutableSet<ParticipantEntity>) {
         participants.stream().map { participant -> saveParticipant(participant) }.collect(Collectors.toSet())
     }
@@ -25,13 +21,4 @@ class ParticipantService(
         return participantRepository.save(participantEntity)
     }
 
-
-//    private fun findUsernameById(userId: String): String? {
-//        if (participants[userId] != null) return participants[userId].toString()
-//
-//        val participant = protocolService.makeRequest(FullUserInfoDTO(userId)).getFirstParticipant()
-//
-//        participants[userId] = participant.name
-//        return participants[userId]
-//    }
 }

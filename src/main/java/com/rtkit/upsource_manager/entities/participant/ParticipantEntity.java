@@ -21,16 +21,21 @@ public class ParticipantEntity {
      */
     @Column(name = "user_id")
     public String userId;
+
+    /**
+     * Author - 1, Reviewer - 2, Watcher - 3
+     */
     public int role;
     public int state;
     public String name;
 
     @JsonIgnore
-    @ManyToOne (fetch = FetchType.LAZY)
-    @JoinColumn (name = "developer_id", insertable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "developer_id", insertable = false, updatable = false)
     private Developer developer;
 
-    public ParticipantEntity() {}
+    public ParticipantEntity() {
+    }
 
     public ParticipantEntity(Participant participant) {
         this.userId = participant.getUserId();

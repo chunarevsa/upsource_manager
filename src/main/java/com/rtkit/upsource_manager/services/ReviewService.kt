@@ -3,7 +3,6 @@ package com.rtkit.upsource_manager.services
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
 import com.rtkit.upsource_manager.payload.api.request.ReviewsRequest
-import com.rtkit.upsource_manager.payload.api.response.reviewList.Review
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -15,38 +14,44 @@ import java.util.stream.Collectors
 class ReviewService(
     private val protocolService: ProtocolService,
     private val reviewRepository: ReviewRepository,
+    private val participantService: ParticipantService,
     @Value(value = "\${review.defaultTimeToExpired}") val defaultTimeToExpired: Long
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
-    fun loadAllReviews(): MutableList<Review> {
-        return protocolService.makeRequest(ReviewsRequest(limit = 20))?.result?.reviews
+    fun updateReviews() {
+        val reviewEntitiesFromDB = findAll()
+        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequest(limit = 20))?.result?.reviews
             ?: throw Exception("не удалось загрузить ревью")
-    }
 
-    fun getReviewEntitiesByReviews(reviews: MutableList<Review>): MutableSet<ReviewEntity> {
-        return reviews.stream().map { review -> ReviewEntity(review) }.collect(Collectors.toSet())
-    }
-
-    fun getOnlyUpdatedReviews(reviewEntities: MutableSet<ReviewEntity>): MutableSet<ReviewEntity> {
-        logger.info("review entities from request: ${reviewEntities.size}")
-
-        val reviewEntitiesFromDB = getAllReviews()
-        logger.info("review entities from DB: ${reviewEntitiesFromDB.size}")
+        // Из Review -> ReviewEntity, Participant -> ParticipantEntity
+        val reviewEntities: MutableSet<ReviewEntity> = reviewsFromRequest.stream().map { review ->
+            ReviewEntity(review).apply {
+                review.participants.forEach { participant ->
+                    this.participants.add(
+                        ParticipantEntity(participant)
+                    )
+                }
+            }
+        }.collect(Collectors.toSet())
 
         reviewEntities.removeAll(reviewEntitiesFromDB)
-        return reviewEntities
+        reviewEntities.forEach { reviewEntity -> participantService.saveParticipants(reviewEntity.participants) }
+        saveReviews(reviewEntities)
+        logger.info("========== Обновлено ${reviewEntities.size} ревью ==========")
+
     }
 
-    private fun getAllReviews(): MutableSet<ReviewEntity> {
+    private fun findAll(): MutableSet<ReviewEntity> {
         return reviewRepository.findAll().toMutableSet()
     }
 
-    fun saveReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity>? {
-        return reviews.stream().map { review -> saveReviews(review) }.collect(Collectors.toSet())
+
+    private fun saveReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity>? {
+        return reviews.stream().map { review -> saveReview(review) }.collect(Collectors.toSet())
     }
 
-    private fun saveReviews(review: ReviewEntity): ReviewEntity {
+    private fun saveReview(review: ReviewEntity): ReviewEntity {
         return reviewRepository.save(review)
     }
 
@@ -54,44 +59,6 @@ class ReviewService(
         //connectionService.makeRequest(CloseRequest())
     }
 
-    fun getParticipantsFromReview(reviews: MutableSet<ReviewEntity>): MutableSet<ParticipantEntity> {
-        val participants: MutableSet<ParticipantEntity> = mutableSetOf()
-        reviews.forEach { review -> review.participants.forEach { participant -> participants.add(participant) } }
-        return participants
-    }
-
-
-//    var reviews: MutableList<Review> = mutableListOf()
-//    var expiredReviewsList: MutableList<Review> = mutableListOf()
-//    var participants: MutableMap<String, String> = mutableMapOf()
-
-//    fun getExpiredReviews(filter: String = ""): List<Review> {
-//        expiredReviewsList.clear()
-//
-//        val timeToExpired: Long = if (filter == "") defaultTimeToExpired else {
-//            filter.toLong() * 86400000
-//        }
-//        val expiredDate = Instant.now().minusMillis(timeToExpired)
-//
-//        reviews.stream().filter { review: Review -> review.state == 1 }.filter { review: Review ->
-//                Instant.ofEpochMilli(review.getUpdatedAt().toString().toLong()).isBefore(expiredDate)
-//            }.forEach { review: Review -> expiredReviewsList.add(review) }
-//
-//        return getParticipantName(expiredReviewsList)
-//    }
-
-//    private fun getParticipantName(badReviews: MutableList<Review>): List<Review> {
-//        badReviews.forEach { review: Review ->
-//                review.participants.forEach { participant: Participant ->
-//                        participant.name = findUsernameById(participant.userId)
-//                    }
-//            }
-//
-//        badReviews.forEach { review: Review ->
-//                review.participants.removeIf { participant -> (participant.name == "guest") }
-//            }
-//        return badReviews
-//    }
 
 }
 

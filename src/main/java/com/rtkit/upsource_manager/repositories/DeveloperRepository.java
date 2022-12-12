@@ -7,13 +7,7 @@ import java.util.Optional;
 
 public interface DeveloperRepository extends JpaRepository<Developer, Long> {
 
-//	Boolean existsByEmail(String email);
-//
-//	Optional<User> findByEmail(String email);
-//
     Optional<Developer> findByLogin (String login);
-//
-//	List<User> findByActive (Boolean acttive);
-//
+
     Boolean existsByLogin(String login);
-} 
+}

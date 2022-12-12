@@ -25,7 +25,7 @@ class AuthService(
     fun authenticateParticipant(login: String, password: String): JwtAuthenticationResponse {
         val authData = getBasicAuthData(login, password)
         validateAuthenticatedData(authData)
-        if (!developerService.developerAlreadyExists(login)) developerService.addNewDeveloper(login, password)
+        developerService.validateDeveloper(login, password)
 
         val user = UsernamePasswordAuthenticationToken(login, password)
         val authentication: Authentication = authenticationManager.authenticate(user)
@@ -49,6 +49,7 @@ class AuthService(
         return jwtTokenProvider.createToken(jwtUser)
     }
 
+    /** Нужно делать при каждом логине, чтобы пароль был актуальный */
     private fun validateAuthenticatedData(authData: String) {
         protocolService.makeRequest(TrialConnectionRequest().apply { setAuth(authData) })
             ?: throw Exception("Authenticated data is not validated")

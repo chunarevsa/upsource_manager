@@ -64,9 +64,9 @@ public class ReviewEntity {
         this.isUnread = review.getIsUnread();
         this.isReadyToClose = review.getIsReadyToClose();
         this.isRemoved = review.getIsRemoved();
-        this.createdAt = (Long) review.getCreatedAt();
+        this.createdAt = review.getCreatedAt();
         this.createdBy = review.getCreatedBy();
-        this.updatedAt = (Long) review.getUpdatedAt();
+        this.updatedAt = review.getUpdatedAt();
         this.completionRate = new CompletionRateEntity(review.getCompletionRate());
         this.discussionCounter = new DiscussionCounterEntity(review.getDiscussionCounter());
         this.isMuted = review.getIsMuted();

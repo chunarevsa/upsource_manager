@@ -1,9 +1,10 @@
 package com.rtkit.upsource_manager.payload.api.response.userInfo;
 
-import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
+import javax.annotation.Generated;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -27,41 +28,44 @@ public class Info {
     private Boolean isResolved;
     @JsonProperty("isMe")
     private Boolean isMe;
+    @JsonProperty("isOnline")
+    private Boolean isOnline;
     @JsonProperty("avatarUrl")
     private String avatarUrl;
-    @JsonProperty("email")
-    private String email;
     @JsonProperty("profileUrl")
     private String profileUrl;
+    @JsonProperty("email")
+    private String email;
     @JsonProperty("login")
     private String login;
 
 
     /**
      * No args constructor for use in serialization
-     *
      */
     public Info() {
     }
 
     /**
-     *
-     * @param isMe
-     * @param avatarUrl
-     * @param name
      * @param userId
+     * @param name
      * @param isResolved
+     * @param isMe
+     * @param isOnline
+     * @param avatarUrl
+     * @param profileUrl
      * @param email
+     * @param login
      */
-    public Info(String userId, String name, Boolean isResolved, Boolean isMe, String avatarUrl, String email, String profileUrl, String login) {
-        super();
+    public Info(String userId, String name, Boolean isResolved, Boolean isMe, Boolean isOnline, String avatarUrl, String profileUrl, String email, String login) {
         this.userId = userId;
         this.name = name;
         this.isResolved = isResolved;
         this.isMe = isMe;
+        this.isOnline = isOnline;
         this.avatarUrl = avatarUrl;
-        this.email = email;
         this.profileUrl = profileUrl;
+        this.email = email;
         this.login = login;
     }
 
@@ -155,5 +159,13 @@ public class Info {
 
     public void setLogin(String login) {
         this.login = login;
+    }
+
+    public Boolean getOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(Boolean online) {
+        isOnline = online;
     }
 }
