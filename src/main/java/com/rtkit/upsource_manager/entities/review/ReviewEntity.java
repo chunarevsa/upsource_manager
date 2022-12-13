@@ -23,7 +23,11 @@ public class ReviewEntity {
     @JoinColumn(name = "review_id", unique = true)
     public ReviewIdEntity reviewId;
 
+    @Column(name = "title", length = 500)
     public String title;
+
+    @Column(name = "description", length = 500)
+    public String description;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "review_participants",
             joinColumns = {@JoinColumn(name = "review_id", referencedColumnName = "id")},
@@ -32,6 +36,8 @@ public class ReviewEntity {
     public int state;
     public boolean isUnread;
     public boolean isReadyToClose;
+    @ElementCollection
+    public List<String> branch;
     public boolean isRemoved;
     public Long createdAt;
     public String createdBy;
@@ -44,12 +50,14 @@ public class ReviewEntity {
     @OneToOne(optional = false, cascade = CascadeType.ALL)
     @JoinColumn(name = "discussion_counter_id")
     public DiscussionCounterEntity discussionCounter;
+
+    public Long deadline;
     public boolean isMuted;
+    @Column(name = "mergeFromBranch")
+    public String mergeFromBranch;
+    @Column(name = "mergeToBranch")
+    public String mergeToBranch;
 
-    @ElementCollection
-    public List<String> branch;
-
-    public String description;
 
     public ReviewEntity() {
     }
@@ -60,21 +68,25 @@ public class ReviewEntity {
     public ReviewEntity(Review review) {
         this.reviewId = new ReviewIdEntity(review.getReviewId());
         this.title = review.getTitle();
+        this.description = review.getDescription();
+        if (!review.getParticipants().isEmpty()) {
+            this.participants = review.getParticipants().stream().map(ParticipantEntity::new).collect(Collectors.toSet());
+        }
         this.state = review.getState();
-        this.isUnread = review.getIsUnread();
-        this.isReadyToClose = review.getIsReadyToClose();
-        this.isRemoved = review.getIsRemoved();
+        this.isUnread = review.getUnread();
+        this.isReadyToClose = review.getReadyToClose();
+        this.branch = review.getBranch();
+        this.isRemoved = review.getRemoved();
         this.createdAt = review.getCreatedAt();
         this.createdBy = review.getCreatedBy();
         this.updatedAt = review.getUpdatedAt();
         this.completionRate = new CompletionRateEntity(review.getCompletionRate());
         this.discussionCounter = new DiscussionCounterEntity(review.getDiscussionCounter());
-        this.isMuted = review.getIsMuted();
-        this.branch = review.branch;
-        this.description = review.description;
-        if (!review.getParticipants().isEmpty()) {
-            this.participants = review.getParticipants().stream().map(ParticipantEntity::new).collect(Collectors.toSet());
-        }
+        this.deadline = review.getDeadline();
+        this.isMuted = review.getMuted();
+        this.mergeFromBranch = review.getMergeFromBranch();
+        this.mergeToBranch = review.getMergeToBranch();
+
     }
 
     public String getUpsourceLink(String ReviewIdEntity) {
@@ -95,6 +107,20 @@ public class ReviewEntity {
         }
         return title.substring(39);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReviewEntity that = (ReviewEntity) o;
+        return reviewId.getReviewId().equals(that.reviewId.getReviewId()) && updatedAt.equals(that.updatedAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reviewId.getReviewId(), updatedAt);
+    }
+
 
     public Long getId() {
         return id;
@@ -220,17 +246,53 @@ public class ReviewEntity {
         this.description = description;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReviewEntity that = (ReviewEntity) o;
-        return reviewId.getReviewId().equals(that.reviewId.getReviewId()) && updatedAt.equals(that.updatedAt);
+    public Long getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Long deadline) {
+        this.deadline = deadline;
+    }
+
+    public String getMergeFromBranch() {
+        return mergeFromBranch;
+    }
+
+    public void setMergeFromBranch(String mergeFromBranch) {
+        this.mergeFromBranch = mergeFromBranch;
+    }
+
+    public String getMergeToBranch() {
+        return mergeToBranch;
+    }
+
+    public void setMergeToBranch(String mergeToBranch) {
+        this.mergeToBranch = mergeToBranch;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(reviewId.getReviewId(), updatedAt);
+    public String toString() {
+        return "ReviewEntity{" +
+                "id=" + id +
+                ", reviewId=" + reviewId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", participants=" + participants +
+                ", state=" + state +
+                ", isUnread=" + isUnread +
+                ", isReadyToClose=" + isReadyToClose +
+                ", branch=" + branch +
+                ", isRemoved=" + isRemoved +
+                ", createdAt=" + createdAt +
+                ", createdBy='" + createdBy + '\'' +
+                ", updatedAt=" + updatedAt +
+                ", completionRate=" + completionRate +
+                ", discussionCounter=" + discussionCounter +
+                ", deadline=" + deadline +
+                ", isMuted=" + isMuted +
+                ", mergeFromBranch='" + mergeFromBranch + '\'' +
+                ", mergeToBranch='" + mergeToBranch + '\'' +
+                '}';
     }
 }
 

@@ -1,19 +1,20 @@
 package com.rtkit.upsource_manager.payload.api.review;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Review {
-
-    public List<String> branch;
-    public String description;
     @JsonProperty("reviewId")
     private ReviewId reviewId;
     @JsonProperty("title")
     private String title;
+    @JsonProperty("description")
+    public String description;
     @JsonProperty("participants")
     private List<Participant> participants = null;
     @JsonProperty("state")
@@ -22,6 +23,8 @@ public class Review {
     private Boolean isUnread;
     @JsonProperty("isReadyToClose")
     private Boolean isReadyToClose;
+    @JsonProperty("branch")
+    public List<String> branch;
     @JsonProperty("isRemoved")
     private Boolean isRemoved;
     @JsonProperty("createdAt")
@@ -34,8 +37,14 @@ public class Review {
     private CompletionRate completionRate;
     @JsonProperty("discussionCounter")
     private DiscussionCounter discussionCounter;
+    @JsonProperty("deadline")
+    public Long deadline;
     @JsonProperty("isMuted")
     private Boolean isMuted;
+    @JsonProperty("mergeFromBranch")
+    public String mergeFromBranch;
+    @JsonProperty("mergeToBranch")
+    public String mergeToBranch;
 
     /**
      * No args constructor for use in serialization
@@ -44,165 +53,215 @@ public class Review {
     }
 
     /**
-     * @param completionRate
+     * @param reviewId
      * @param title
+     * @param description
+     * @param participants
+     * @param state
      * @param isUnread
      * @param isReadyToClose
-     * @param createdAt
+     * @param branch
      * @param isRemoved
+     * @param createdAt
      * @param createdBy
-     * @param discussionCounter
-     * @param state
-     * @param reviewId
-     * @param isMuted
-     * @param participants
      * @param updatedAt
+     * @param completionRate
+     * @param discussionCounter
+     * @param deadline
+     * @param isMuted
+     * @param mergeFromBranch
+     * @param mergeToBranch
      */
-    public Review(ReviewId reviewId, String title, List<Participant> participants, Integer state, Boolean isUnread, Boolean isReadyToClose, Boolean isRemoved, Long createdAt, String createdBy, Long updatedAt, CompletionRate completionRate, DiscussionCounter discussionCounter, Boolean isMuted) {
-        super();
+    public Review(ReviewId reviewId, String title, String description, List<Participant> participants,
+                  Integer state, Boolean isUnread, Boolean isReadyToClose, List<String> branch,
+                  Boolean isRemoved, Long createdAt, String createdBy, Long updatedAt,
+                  CompletionRate completionRate, DiscussionCounter discussionCounter,
+                  Long deadline, Boolean isMuted, String mergeFromBranch, String mergeToBranch) {
         this.reviewId = reviewId;
         this.title = title;
+        this.description = description;
         this.participants = participants;
         this.state = state;
         this.isUnread = isUnread;
         this.isReadyToClose = isReadyToClose;
+        this.branch = branch;
         this.isRemoved = isRemoved;
         this.createdAt = createdAt;
         this.createdBy = createdBy;
         this.updatedAt = updatedAt;
         this.completionRate = completionRate;
         this.discussionCounter = discussionCounter;
+        this.deadline = deadline;
         this.isMuted = isMuted;
+        this.mergeFromBranch = mergeFromBranch;
+        this.mergeToBranch = mergeToBranch;
     }
 
-    @JsonProperty("reviewId")
     public ReviewId getReviewId() {
         return reviewId;
     }
 
-    @JsonProperty("reviewId")
     public void setReviewId(ReviewId reviewId) {
         this.reviewId = reviewId;
     }
 
-    @JsonProperty("title")
     public String getTitle() {
         return title;
     }
 
-    @JsonProperty("title")
     public void setTitle(String title) {
         this.title = title;
     }
 
-    @JsonProperty("participants")
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<Participant> getParticipants() {
         return participants;
     }
 
-    @JsonProperty("participants")
     public void setParticipants(List<Participant> participants) {
         this.participants = participants;
     }
 
-    @JsonProperty("state")
     public Integer getState() {
         return state;
     }
 
-    @JsonProperty("state")
     public void setState(Integer state) {
         this.state = state;
     }
 
-    @JsonProperty("isUnread")
-    public Boolean getIsUnread() {
+    public Boolean getUnread() {
         return isUnread;
     }
 
-    @JsonProperty("isUnread")
-    public void setIsUnread(Boolean isUnread) {
-        this.isUnread = isUnread;
+    public void setUnread(Boolean unread) {
+        isUnread = unread;
     }
 
-    @JsonProperty("isReadyToClose")
-    public Boolean getIsReadyToClose() {
+    public Boolean getReadyToClose() {
         return isReadyToClose;
     }
 
-    @JsonProperty("isReadyToClose")
-    public void setIsReadyToClose(Boolean isReadyToClose) {
-        this.isReadyToClose = isReadyToClose;
+    public void setReadyToClose(Boolean readyToClose) {
+        isReadyToClose = readyToClose;
     }
 
-    @JsonProperty("isRemoved")
-    public Boolean getIsRemoved() {
+    public List<String> getBranch() {
+        return branch;
+    }
+
+    public void setBranch(List<String> branch) {
+        this.branch = branch;
+    }
+
+    public Boolean getRemoved() {
         return isRemoved;
     }
 
-    @JsonProperty("isRemoved")
-    public void setIsRemoved(Boolean isRemoved) {
-        this.isRemoved = isRemoved;
+    public void setRemoved(Boolean removed) {
+        isRemoved = removed;
     }
 
-    @JsonProperty("createdAt")
     public Long getCreatedAt() {
         return createdAt;
     }
 
-    @JsonProperty("createdAt")
     public void setCreatedAt(Long createdAt) {
         this.createdAt = createdAt;
     }
 
-    @JsonProperty("createdBy")
     public String getCreatedBy() {
         return createdBy;
     }
 
-    @JsonProperty("createdBy")
     public void setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
     }
 
-    @JsonProperty("updatedAt")
     public Long getUpdatedAt() {
         return updatedAt;
     }
 
-    @JsonProperty("updatedAt")
     public void setUpdatedAt(Long updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    @JsonProperty("completionRate")
     public CompletionRate getCompletionRate() {
         return completionRate;
     }
 
-    @JsonProperty("completionRate")
     public void setCompletionRate(CompletionRate completionRate) {
         this.completionRate = completionRate;
     }
 
-    @JsonProperty("discussionCounter")
     public DiscussionCounter getDiscussionCounter() {
         return discussionCounter;
     }
 
-    @JsonProperty("discussionCounter")
     public void setDiscussionCounter(DiscussionCounter discussionCounter) {
         this.discussionCounter = discussionCounter;
     }
 
-    @JsonProperty("isMuted")
-    public Boolean getIsMuted() {
+    public Long getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Long deadline) {
+        this.deadline = deadline;
+    }
+
+    public Boolean getMuted() {
         return isMuted;
     }
 
-    @JsonProperty("isMuted")
-    public void setIsMuted(Boolean isMuted) {
-        this.isMuted = isMuted;
+    public void setMuted(Boolean muted) {
+        isMuted = muted;
     }
 
+    public String getMergeFromBranch() {
+        return mergeFromBranch;
+    }
+
+    public void setMergeFromBranch(String mergeFromBranch) {
+        this.mergeFromBranch = mergeFromBranch;
+    }
+
+    public String getMergeToBranch() {
+        return mergeToBranch;
+    }
+
+    public void setMergeToBranch(String mergeToBranch) {
+        this.mergeToBranch = mergeToBranch;
+    }
+
+    @Override
+    public String toString() {
+        return "Review{" +
+                "reviewId=" + reviewId +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", participants=" + participants +
+                ", state=" + state +
+                ", isUnread=" + isUnread +
+                ", isReadyToClose=" + isReadyToClose +
+                ", branch=" + branch +
+                ", isRemoved=" + isRemoved +
+                ", createdAt=" + createdAt +
+                ", createdBy='" + createdBy + '\'' +
+                ", updatedAt=" + updatedAt +
+                ", completionRate=" + completionRate +
+                ", discussionCounter=" + discussionCounter +
+                ", deadline=" + deadline +
+                ", isMuted=" + isMuted +
+                ", mergeFromBranch='" + mergeFromBranch + '\'' +
+                ", mergeToBranch='" + mergeToBranch + '\'' +
+                '}';
+    }
 }

@@ -16,14 +16,17 @@ class ProjectService(
     fun update() {
         logger.info("================== Start init ProjectService ==================")
         developerService.updateDevelopers()
-        reviewService.updateReviews()
+        reviewService.updateReviews(2000)
         logger.info("================== End init ProjectService ==================")
     }
 
     //@Scheduled(cron = "0 */100 * * * *")
     fun updateReviews() {
         logger.info("================== Start update reviews ==================")
-        reviewService.updateReviews()
+        // Можно сделать выгрузку из application.properties и сортировку по дате создания
+        val limit: Int = 2000
+        val sortBy: String = "id,desc"
+        reviewService.updateReviews(limit, sortBy)
         logger.info("================== End update reviews ==================")
     }
 

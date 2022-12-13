@@ -19,10 +19,14 @@ class ReviewService(
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
-    fun updateReviews() {
+    fun updateReviews(limit: Int, sortBy: String = "id,desc") {
         val reviewEntitiesFromDB = findAll()
-        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequestDTO(limit = 20))?.reviews
-            ?: throw Exception("не удалось загрузить ревью")
+        val reviewsFromRequest = protocolService.makeRequest(
+            ReviewsRequestDTO(
+                limit = limit,
+                sortBy = sortBy
+            )
+        )?.reviews ?: throw Exception("не удалось загрузить ревью")
 
         // Из Review -> ReviewEntity, Participant -> ParticipantEntity
         val reviewEntities: MutableSet<ReviewEntity> = reviewsFromRequest.stream().map { review ->
@@ -52,7 +56,13 @@ class ReviewService(
     }
 
     private fun saveReview(review: ReviewEntity): ReviewEntity {
-        return reviewRepository.save(review)
+        return try {
+            reviewRepository.save(review)
+        } catch (e: Exception) {
+            logger.error("==== Не удалось сохранить ревью: $review")
+            throw Exception() // TODO: сделать обработку без бросания, можно выше отфильтровывать
+        }
+
     }
 
     fun closeReview() {
