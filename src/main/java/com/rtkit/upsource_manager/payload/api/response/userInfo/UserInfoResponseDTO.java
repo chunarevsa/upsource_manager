@@ -3,44 +3,40 @@ package com.rtkit.upsource_manager.payload.api.response.userInfo;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import com.rtkit.upsource_manager.payload.api.response.ABaseUpsourceResponse;
 
-import javax.annotation.Generated;
+import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "result"
-})
-@Generated("jsonschema2pojo")
+
 public class UserInfoResponseDTO extends ABaseUpsourceResponse {
 
-    @JsonProperty("result")
-    private Result result;
+    @JsonProperty("infos")
+    private List<Info> infos = null;
 
     /**
      * No args constructor for use in serialization
      */
     public UserInfoResponseDTO() {
-        super();
     }
 
     /**
-     * @param result
+     * @param infos
      */
-    public UserInfoResponseDTO(Result result) {
+    public UserInfoResponseDTO(List<Info> infos) {
         super();
-        this.result = result;
+        this.infos = infos;
     }
 
-    @JsonProperty("result")
-    public Result getResult() {
-        return result;
+    @JsonProperty("infos")
+    public List<Info> getInfos() {
+        return infos;
     }
 
-    @JsonProperty("result")
-    public void setResult(Result result) {
-        this.result = result;
+    @JsonProperty("infos")
+    public void setInfos(List<Info> infos) {
+        this.infos = infos;
     }
 
 }

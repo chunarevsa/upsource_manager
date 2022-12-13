@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager.services
+package com.rtkit.upsource_manager.payload.api.request
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.rtkit.upsource_manager.entities.ERequest
@@ -9,7 +9,7 @@ import com.rtkit.upsource_manager.payload.api.response.userInfo.UserInfoResponse
 
 class FindUsersRequestDTO(
     @JsonProperty("pattern")
-    /** Search query, e.g. part of the name */
+    /** Search query, e.g. part of the name ( "" - все )*/
     val pattern: String = "",
     @JsonProperty("limit")
     val limit: Int

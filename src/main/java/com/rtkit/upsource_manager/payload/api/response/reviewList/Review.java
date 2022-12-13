@@ -2,28 +2,10 @@ package com.rtkit.upsource_manager.payload.api.response.reviewList;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-import javax.annotation.Generated;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "reviewId",
-        "title",
-        "participants",
-        "state",
-        "isUnread",
-        "isReadyToClose",
-        "isRemoved",
-        "createdAt",
-        "createdBy",
-        "updatedAt",
-        "completionRate",
-        "discussionCounter",
-        "isMuted"
-})
-@Generated("jsonschema2pojo")
 public class Review {
 
     public List<String> branch;

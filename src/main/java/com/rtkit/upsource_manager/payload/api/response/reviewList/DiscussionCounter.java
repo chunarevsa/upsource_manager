@@ -1,19 +1,10 @@
 
 package com.rtkit.upsource_manager.payload.api.response.reviewList;
 
-import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "count",
-    "hasUnresolved",
-    "unresolvedCount",
-    "resolvedCount"
-})
-@Generated("jsonschema2pojo")
 public class DiscussionCounter {
 
     @JsonProperty("count")
@@ -27,13 +18,11 @@ public class DiscussionCounter {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public DiscussionCounter() {
     }
 
     /**
-     * 
      * @param unresolvedCount
      * @param hasUnresolved
      * @param count

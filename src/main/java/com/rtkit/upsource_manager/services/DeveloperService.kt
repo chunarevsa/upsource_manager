@@ -3,6 +3,7 @@ package com.rtkit.upsource_manager.services
 import com.rtkit.upsource_manager.entities.developer.Developer
 import com.rtkit.upsource_manager.entities.developer.DeveloperStatus
 import com.rtkit.upsource_manager.entities.developer.Role
+import com.rtkit.upsource_manager.payload.api.request.FindUsersRequestDTO
 import com.rtkit.upsource_manager.payload.api.response.userInfo.Info
 import com.rtkit.upsource_manager.repositories.DeveloperRepository
 import org.apache.logging.log4j.LogManager
@@ -37,7 +38,7 @@ class DeveloperService(
 
     fun updateDevelopers() {
         val devFromDB = findAll()
-        val devFromRequest = protocolService.makeRequest(FindUsersRequestDTO(limit = 500))?.result?.infos
+        val devFromRequest = protocolService.makeRequest(FindUsersRequestDTO(limit = 500))?.infos
             ?: throw Exception()
 
         val listUserIdsFromDb = mutableListOf<String>()

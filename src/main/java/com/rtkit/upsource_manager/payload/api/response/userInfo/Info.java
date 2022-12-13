@@ -7,17 +7,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import javax.annotation.Generated;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-        "userId",
-        "name",
-        "isResolved",
-        "isMe",
-        "avatarUrl",
-        "email",
-        "profileUrl",
-        "login"
-})
-@Generated("jsonschema2pojo")
 public class Info {
 
     @JsonProperty("userId")

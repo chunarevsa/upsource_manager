@@ -1,18 +1,10 @@
 
 package com.rtkit.upsource_manager.payload.api.response.reviewList;
 
-import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@JsonPropertyOrder({
-    "completedCount",
-    "reviewersCount",
-    "hasConcern"
-})
-@Generated("jsonschema2pojo")
 public class CompletionRate {
 
     @JsonProperty("completedCount")
@@ -24,13 +16,11 @@ public class CompletionRate {
 
     /**
      * No args constructor for use in serialization
-     * 
      */
     public CompletionRate() {
     }
 
     /**
-     * 
      * @param hasConcern
      * @param completedCount
      * @param reviewersCount

@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.payload.api
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 
 open class JsonObjectMapper : IMapper {
@@ -15,6 +16,7 @@ open class JsonObjectMapper : IMapper {
     }
 
     override fun <T : IMappable?> readValue(content: String?, valueType: Class<T>?): T {
+        mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
         return mapper!!.readValue(content, valueType)
     }
 

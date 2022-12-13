@@ -17,21 +17,21 @@ class ProjectService(
         logger.info("================== Start init ProjectService ==================")
         developerService.updateDevelopers()
         reviewService.updateReviews()
-        logger.info("\n================== Start init ProjectService ==================")
+        logger.info("================== End init ProjectService ==================")
     }
 
     //@Scheduled(cron = "0 */100 * * * *")
     fun updateReviews() {
         logger.info("================== Start update reviews ==================")
         reviewService.updateReviews()
-        logger.info("\n================== End update reviews ==================")
+        logger.info("================== End update reviews ==================")
     }
 
     //@Scheduled(cron = "0 */300 * * * *")
     fun updateDevelopers() {
         logger.info("================== Start update developers ==================")
         developerService.updateDevelopers()
-        logger.info("\n================== End update developers ==================")
+        logger.info("================== End update developers ==================")
     }
 
 

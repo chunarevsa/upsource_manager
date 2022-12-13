@@ -1,11 +1,13 @@
 package com.rtkit.upsource_manager.payload.api.request
 
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.rtkit.upsource_manager.entities.ERequest
 import com.rtkit.upsource_manager.payload.api.IMapper
 import com.rtkit.upsource_manager.payload.api.JsonObjectMapper
 import com.rtkit.upsource_manager.payload.api.response.reviewList.ReviewListDTO
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 class ReviewsRequestDTO(
     @JsonProperty("limit")
     val limit: Int,

@@ -21,7 +21,7 @@ class ReviewService(
 
     fun updateReviews() {
         val reviewEntitiesFromDB = findAll()
-        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequestDTO(limit = 20))?.result?.reviews
+        val reviewsFromRequest = protocolService.makeRequest(ReviewsRequestDTO(limit = 20))?.reviews
             ?: throw Exception("не удалось загрузить ревью")
 
         // Из Review -> ReviewEntity, Participant -> ParticipantEntity

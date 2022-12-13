@@ -1,6 +1,7 @@
 package com.rtkit.upsource_manager.payload.api.response
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect
+import com.fasterxml.jackson.annotation.JsonRootName
 import com.rtkit.upsource_manager.payload.api.IMappable
 
 /**
@@ -12,9 +13,9 @@ import com.rtkit.upsource_manager.payload.api.IMappable
     getterVisibility = JsonAutoDetect.Visibility.NONE,
     isGetterVisibility = JsonAutoDetect.Visibility.NONE,
     setterVisibility = JsonAutoDetect.Visibility.NONE
-) // Игнорируем поля родителя, который у нас в библиотеке...
-
-
+)
+// От upsource всегда приходит рут {"result": {...}}
+@JsonRootName(value = "result")
 abstract class ABaseUpsourceResponse : IMappable {
 
 }
