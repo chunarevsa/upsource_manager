@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.rtkit.upsource_manager.payload.api.response.reviewList.Review
+import com.rtkit.upsource_manager.payload.api.review.Review
 import org.springframework.stereotype.Service
 
 @Service

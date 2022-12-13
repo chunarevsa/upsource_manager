@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.entities.review;
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
-import com.rtkit.upsource_manager.payload.api.response.reviewList.Review;
+import com.rtkit.upsource_manager.payload.api.review.Review;
 
 import javax.persistence.*;
 import java.util.List;

@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.entities.review;
 
-import com.rtkit.upsource_manager.payload.api.response.reviewList.CompletionRate;
+import com.rtkit.upsource_manager.payload.api.review.CompletionRate;
 
 import javax.persistence.*;
 

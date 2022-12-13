@@ -2,7 +2,7 @@ package com.rtkit.upsource_manager.entities.participant;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.rtkit.upsource_manager.entities.developer.Developer;
-import com.rtkit.upsource_manager.payload.api.response.reviewList.Participant;
+import com.rtkit.upsource_manager.payload.api.review.Participant;
 
 import javax.persistence.*;
 

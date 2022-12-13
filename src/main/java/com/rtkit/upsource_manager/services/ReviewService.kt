@@ -2,7 +2,7 @@ package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.api.request.ReviewsRequestDTO
+import com.rtkit.upsource_manager.payload.api.review.ReviewsRequestDTO
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger

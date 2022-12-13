@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.entities.review;
 
-import com.rtkit.upsource_manager.payload.api.response.reviewList.ReviewId;
+import com.rtkit.upsource_manager.payload.api.review.ReviewId;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;

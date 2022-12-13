@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.payload.api.request.ABaseUpsourceRequest
-import com.rtkit.upsource_manager.payload.api.response.ABaseUpsourceResponse
+import com.rtkit.upsource_manager.payload.api.ABaseUpsourceRequest
+import com.rtkit.upsource_manager.payload.api.ABaseUpsourceResponse
 import org.springframework.stereotype.Service
 
 @Service

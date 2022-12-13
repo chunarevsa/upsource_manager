@@ -3,8 +3,8 @@ package com.rtkit.upsource_manager.services
 import com.rtkit.upsource_manager.entities.developer.Developer
 import com.rtkit.upsource_manager.entities.developer.DeveloperStatus
 import com.rtkit.upsource_manager.entities.developer.Role
-import com.rtkit.upsource_manager.payload.api.request.FindUsersRequestDTO
-import com.rtkit.upsource_manager.payload.api.response.userInfo.Info
+import com.rtkit.upsource_manager.payload.api.user.FindUsersRequestDTO
+import com.rtkit.upsource_manager.payload.api.user.Info
 import com.rtkit.upsource_manager.repositories.DeveloperRepository
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
