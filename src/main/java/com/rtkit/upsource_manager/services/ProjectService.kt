@@ -17,7 +17,7 @@ class ProjectService(
         logger.info("================== Start init ProjectService ==================")
         developerService.updateDevelopers()
         reviewService.updateReviews(2000)
-        logger.info("================== End init ProjectService ==================")
+        logger.info("================== End init ProjectService ==================\n")
     }
 
     //@Scheduled(cron = "0 */100 * * * *")
@@ -27,15 +27,14 @@ class ProjectService(
         val limit: Int = 2000
         val sortBy: String = "id,desc"
         reviewService.updateReviews(limit, sortBy)
-        logger.info("================== End update reviews ==================")
+        logger.info("================== End update reviews ==================\n")
     }
 
     //@Scheduled(cron = "0 */300 * * * *")
     fun updateDevelopers() {
         logger.info("================== Start update developers ==================")
         developerService.updateDevelopers()
-        logger.info("================== End update developers ==================")
+        logger.info("================== End update developers ==================\n")
     }
-
 
 }

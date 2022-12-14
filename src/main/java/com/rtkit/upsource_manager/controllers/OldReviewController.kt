@@ -1,14 +1,11 @@
 package com.rtkit.upsource_manager.controllers
 
-import com.rtkit.upsource_manager.services.ReviewServiceImpl
 import org.springframework.stereotype.Controller
-import org.springframework.ui.Model
 import org.springframework.web.bind.annotation.*
 
 @Controller
 @RequestMapping("/main/review")
 class OldReviewController(
-        private val reviewService: ReviewServiceImpl,
         //private val authService: AuthServiceImpl,
 ) {
 //

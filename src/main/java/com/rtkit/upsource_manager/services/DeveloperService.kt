@@ -31,7 +31,6 @@ class DeveloperService(
             logger.info("========== Новый верифицированный пользователь: ${dev.name} ==========")
         }
 
-
         dev.password = passwordEncoder.encode(password)
         saveDeveloper(dev)
     }
@@ -54,10 +53,6 @@ class DeveloperService(
         devFromRequest.removeIf { dev -> (dev.name == "guest") }
 
         devFromRequest.forEach { dev -> addDevFromRequest(dev) }
-    }
-
-    private fun findAll(): MutableSet<Developer> {
-        return developerRepository.findAll().toMutableSet()
     }
 
     private fun addDevFromRequest(dev: Info) {
@@ -88,6 +83,14 @@ class DeveloperService(
         return saveDeveloper(newDeveloper)
     }
 
+    private fun getRoles(isAdmin: Boolean): MutableSet<Role> {
+        val roles = roleService.findAll()
+        if (!isAdmin) {
+            roles.removeIf(Role::isAdminRole)
+        }
+        return roles
+    }
+
     private fun saveDeveloper(developer: Developer): Developer {
         return developerRepository.save(developer)
     }
@@ -101,14 +104,9 @@ class DeveloperService(
         return if (developer.isPresent) developer.get() else throw Exception("Participant is not exists")
     }
 
-    private fun getRoles(isAdmin: Boolean): MutableSet<Role> {
-        val roles = roleService.findAll()
-        if (!isAdmin) {
-            roles.removeIf(Role::isAdminRole)
-        }
-        return roles
+    private fun findAll(): MutableSet<Developer> {
+        return developerRepository.findAll().toMutableSet()
     }
-
 
 }
 

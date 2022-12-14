@@ -41,6 +41,7 @@ class ReviewService(
 
         reviewEntities.removeAll(reviewEntitiesFromDB)
         reviewEntities.forEach { reviewEntity -> participantService.saveParticipants(reviewEntity.participants) }
+        reviewEntities.filter { reviewEntity -> !reviewEntity.isRemoved }
         saveReviews(reviewEntities)
         logger.info("========== Обновлено ${reviewEntities.size} ревью ==========")
 
@@ -65,9 +66,46 @@ class ReviewService(
 
     }
 
+//    fun closeReviews(reviewList: MutableSet<ReviewEntity>) {
+//        reviewList.forEach { review -> closeReview(review.reviewId.reviewId) }
+//    }
+//
+//    fun closeReview(reviewId: String) {
+//
+//        val con = authService.getConnection(RequestURL.CLOSE_REVIEW)
+//        val jsonRequest = "{\"reviewId\": {\"projectId\": \"elk\", \"reviewId\":\"${reviewId}\"}, \"isFlagged\":true}"
+//        authService.doPostRequestAndReceiveResponse(con, jsonRequest)
+//
+//        reviews.removeIf { r -> r.reviewId.reviewId == reviewId }
+//        expiredReviewsList.removeIf { r -> r.reviewId.reviewId == reviewId }
+//        reviewsWithEmptyRevisionList.removeIf { r -> r.reviewId.reviewId == reviewId }
+//
+//    }
+
     fun closeReview() {
         //connectionService.makeRequest(CloseRequest())
     }
+//    private fun getReviewsWithEmptyRevision(): List<Review> {
+//        reviewsWithEmptyRevisionList.clear()
+//        reviews.stream()
+//                .filter { review: Review -> review.state == 1 }
+//                .filter { review: Review -> revisionIsEmpty(review) }
+//                .forEach { review: Review -> reviewsWithEmptyRevisionList.add(review) }
+//
+//        return getParticipantName(reviewsWithEmptyRevisionList)
+//    }
+//
+//    private fun revisionIsEmpty(review: Review): Boolean {
+//        val con = authService.getConnection(RequestURL.GET_REVIEWS)
+//        val jsonRequest = "{\"reviewId\": {\"projectId\": \"elk\", \"reviewId\":\"${review.reviewId.reviewId}\"}}"
+//        val response = authService.doPostRequestAndReceiveResponse(con, jsonRequest)
+//
+//        val revisionRootObj = REVISION_MAPPER.readValue(response, ChangesRoot::class.java)
+//        //у пустых ревью есть аннотация "Review does not contain any revisions."
+//        return (revisionRootObj.result.getAnnotation() != null)
+//    }
+//
+//
 
 
 }

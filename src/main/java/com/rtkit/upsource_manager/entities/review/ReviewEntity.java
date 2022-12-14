@@ -4,6 +4,7 @@ import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
 import com.rtkit.upsource_manager.payload.api.review.Review;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class ReviewEntity {
     @JoinTable(name = "review_participants",
             joinColumns = {@JoinColumn(name = "review_id", referencedColumnName = "id")},
             inverseJoinColumns = {@JoinColumn(name = "participant_id", referencedColumnName = "participant_id")})
-    public Set<ParticipantEntity> participants;
+    public Set<ParticipantEntity> participants = new HashSet<>();
     public int state;
     public boolean isUnread;
     public boolean isReadyToClose;
@@ -69,9 +70,6 @@ public class ReviewEntity {
         this.reviewId = new ReviewIdEntity(review.getReviewId());
         this.title = review.getTitle();
         this.description = review.getDescription();
-        if (!review.getParticipants().isEmpty()) {
-            this.participants = review.getParticipants().stream().map(ParticipantEntity::new).collect(Collectors.toSet());
-        }
         this.state = review.getState();
         this.isUnread = review.getUnread();
         this.isReadyToClose = review.getReadyToClose();
