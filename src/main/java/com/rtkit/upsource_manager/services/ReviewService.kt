@@ -2,6 +2,8 @@ package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
 import com.rtkit.upsource_manager.entities.review.ReviewEntity
+import com.rtkit.upsource_manager.payload.api.review.CloseReviewRequestDTO
+import com.rtkit.upsource_manager.payload.api.review.ReviewId
 import com.rtkit.upsource_manager.payload.api.review.ReviewsRequestDTO
 import com.rtkit.upsource_manager.repositories.ReviewRepository
 import org.apache.logging.log4j.LogManager
@@ -66,25 +68,33 @@ class ReviewService(
 
     }
 
-//    fun closeReviews(reviewList: MutableSet<ReviewEntity>) {
-//        reviewList.forEach { review -> closeReview(review.reviewId.reviewId) }
-//    }
-//
-//    fun closeReview(reviewId: String) {
-//
-//        val con = authService.getConnection(RequestURL.CLOSE_REVIEW)
-//        val jsonRequest = "{\"reviewId\": {\"projectId\": \"elk\", \"reviewId\":\"${reviewId}\"}, \"isFlagged\":true}"
-//        authService.doPostRequestAndReceiveResponse(con, jsonRequest)
-//
-//        reviews.removeIf { r -> r.reviewId.reviewId == reviewId }
-//        expiredReviewsList.removeIf { r -> r.reviewId.reviewId == reviewId }
-//        reviewsWithEmptyRevisionList.removeIf { r -> r.reviewId.reviewId == reviewId }
-//
-//    }
-
-    fun closeReview() {
-        //connectionService.makeRequest(CloseRequest())
+    fun closeReviews(reviewList: MutableSet<ReviewEntity>) {
+        reviewList.forEach { review -> closeReview(review.upsourceId) }
     }
+
+    fun closeReview(upsourceId: String) {
+        val req = CloseReviewRequestDTO(ReviewId().apply {
+            this.reviewId = upsourceId
+        })
+        // Удаляем в Upsource
+        if (!protocolService.makeRequest(req).isSuccessfull()) throw Exception()
+
+        // Удаляем у нас
+        deleteReviewByUpsourceId(upsourceId)
+    }
+
+    private fun getReviewByUpsourceId(upsourceId: String): ReviewEntity {
+        return reviewRepository.findByUpsourceId(upsourceId)
+    }
+
+    private fun deleteReviewByUpsourceId(upsourceId: String) {
+        return try {
+            reviewRepository.deleteByUpsourceId(upsourceId)
+        } catch (e: Exception) {
+            logger.error("Не удалось удалить ревью: $upsourceId: String")
+        }
+    }
+
 //    private fun getReviewsWithEmptyRevision(): List<Review> {
 //        reviewsWithEmptyRevisionList.clear()
 //        reviews.stream()

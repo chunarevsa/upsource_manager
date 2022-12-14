@@ -1,7 +1,6 @@
 package com.rtkit.upsource_manager.payload.api
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.rtkit.upsource_manager.config.AdminConfig.Companion.ADMIN_BASIC_AUTH
 import java.io.BufferedReader
 import java.io.IOException
@@ -21,12 +20,15 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
 
     private val reqRespClassMapping = ConcurrentHashMap<Class<out ABaseUpsourceRequest<RESP>>, Class<out RESP>>()
 
-    @JsonProperty("projectId")
-    val projectId: String = "elk"
+    @JsonIgnore
+    private var httpCode: Int = 0
+
     @JsonIgnore
     private var headers = mutableMapOf<String, String>()
+
     @JsonIgnore
     var basicAuth: String = ADMIN_BASIC_AUTH
+
     @JsonIgnore
     abstract fun getRequestURL(): String
 
@@ -61,6 +63,7 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
             println("Ошибка чтения информации")
             throw Exception("Ошибка чтения информации")
         }
+        if (response.toString().isNotEmpty()) this.httpCode = 200
         return response.toString()
     }
 
@@ -89,12 +92,16 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : IMappable {
         return url ?: throw Exception("Пустой URL")
     }
 
-    fun process(): RESP? {
+    fun process(): RESP {
         val responseString = doPostRequestAndReceiveResponse()
-        return getMapper().readValue(responseString, getActualResponseClass());
+        val resp = getMapper().readValue(responseString, getActualResponseClass())
+        if (resp != null) {
+            resp.resultCode = httpCode
+        }
+        return getMapper().readValue(responseString, getActualResponseClass()).apply { this.resultCode = httpCode }
     }
 
-    protected open fun getActualResponseClass(): Class<out RESP?>? {
+    protected open fun getActualResponseClass(): Class<out RESP> {
         if (reqRespClassMapping.containsKey(javaClass)) {
             return reqRespClassMapping[javaClass]!!
         }

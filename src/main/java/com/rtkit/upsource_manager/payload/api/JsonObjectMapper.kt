@@ -7,17 +7,17 @@ open class JsonObjectMapper : IMapper {
 
     private val mapper: ObjectMapper = ObjectMapper()
 
-    override fun writeValueAsString(value: IMappable?): String {
+    override fun writeValueAsString(value: IMappable): String {
         return try {
-            mapper!!.writeValueAsString(value)
+            mapper.writeValueAsString(value)
         } catch (e: Exception) {
             throw Exception(e) // TODO: Exception(e)
         }
     }
 
-    override fun <T : IMappable?> readValue(content: String?, valueType: Class<T>?): T {
+    override fun <T : IMappable> readValue(content: String, valueType: Class<T>): T {
         mapper.enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
-        return mapper!!.readValue(content, valueType)
+        return mapper.readValue(content, valueType)
     }
 
 }

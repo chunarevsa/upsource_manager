@@ -2,13 +2,13 @@ package com.rtkit.upsource_manager.entities.review;
 
 import com.rtkit.upsource_manager.entities.participant.ParticipantEntity;
 import com.rtkit.upsource_manager.payload.api.review.Review;
+import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "review")
@@ -20,9 +20,17 @@ public class ReviewEntity {
     @SequenceGenerator(name = "review_seq", allocationSize = 1)
     private Long id;
 
-    @OneToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "review_id", unique = true)
-    public ReviewIdEntity reviewId;
+    /**
+     * elk-apelk
+     */
+    public String projectId;
+
+    /**
+     * APELK-CR-462
+     */
+    @Column(unique = true)
+    @NaturalId
+    public String upsourceId;
 
     @Column(name = "title", length = 500)
     public String title;
@@ -54,9 +62,7 @@ public class ReviewEntity {
 
     public Long deadline;
     public boolean isMuted;
-    @Column(name = "mergeFromBranch")
     public String mergeFromBranch;
-    @Column(name = "mergeToBranch")
     public String mergeToBranch;
 
 
@@ -67,7 +73,8 @@ public class ReviewEntity {
      * Получение сущности из DTO (без Participants)
      */
     public ReviewEntity(Review review) {
-        this.reviewId = new ReviewIdEntity(review.getReviewId());
+        this.projectId = review.getReviewId().getProjectId();
+        this.upsourceId = review.getReviewId().getReviewId();
         this.title = review.getTitle();
         this.description = review.getDescription();
         this.state = review.getState();
@@ -111,12 +118,12 @@ public class ReviewEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ReviewEntity that = (ReviewEntity) o;
-        return reviewId.getReviewId().equals(that.reviewId.getReviewId()) && updatedAt.equals(that.updatedAt);
+        return upsourceId.equals(that.upsourceId) && updatedAt.equals(that.updatedAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(reviewId.getReviewId(), updatedAt);
+        return Objects.hash(upsourceId, updatedAt);
     }
 
 
@@ -124,12 +131,20 @@ public class ReviewEntity {
         return id;
     }
 
-    public ReviewIdEntity getReviewId() {
-        return reviewId;
+    public String getProjectId() {
+        return projectId;
     }
 
-    public void setReviewId(ReviewIdEntity reviewId) {
-        this.reviewId = reviewId;
+    public void setProjectId(String projectId) {
+        this.projectId = projectId;
+    }
+
+    public String getUpsourceId() {
+        return upsourceId;
+    }
+
+    public void setUpsourceId(String reviewId) {
+        this.upsourceId = reviewId;
     }
 
     public String getTitle() {
@@ -272,7 +287,8 @@ public class ReviewEntity {
     public String toString() {
         return "ReviewEntity{" +
                 "id=" + id +
-                ", reviewId=" + reviewId +
+                ", projectId='" + projectId + '\'' +
+                ", reviewId='" + upsourceId + '\'' +
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", participants=" + participants +

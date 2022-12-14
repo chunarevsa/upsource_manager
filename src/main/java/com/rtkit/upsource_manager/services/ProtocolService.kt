@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service
 
 @Service
 class ProtocolService {
-    fun <REQ : ABaseUpsourceRequest<RESP>, RESP : ABaseUpsourceResponse> makeRequest(request: REQ): RESP? {
+    fun <REQ : ABaseUpsourceRequest<RESP>, RESP : ABaseUpsourceResponse> makeRequest(request: REQ): RESP {
         return request.process()
     }
 }

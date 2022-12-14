@@ -51,7 +51,7 @@ class AuthService(
 
     /** Нужно делать при каждом логине, чтобы пароль был актуальный */
     private fun validateAuthenticatedData(authData: String) {
-        protocolService.makeRequest(ProjectIdDTO().apply { setAuth(authData) })
+        protocolService.makeRequest(ProjectIdDTO("elk").apply { setAuth(authData) })
             ?: throw Exception("Authenticated data is not validated")
         logger.info("Authenticated data is validated")
     }

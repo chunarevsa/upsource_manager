@@ -23,19 +23,19 @@ public class Developer {
     @Column(name = "password")
     private String password = "";
 
-    @Column(name = "userId")
+    @Column(name = "user_id")
     private String userId;
 
     @Column(name = "name")
     private String name;
 
-    @Column(name = "avatarUrl")
+    @Column(name = "avatar_url")
     private String avatarUrl;
 
     @Column(name = "email")
     private String email;
 
-    @Column(name = "profileUrl")
+    @Column(name = "profile_url")
     private String profileUrl;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
