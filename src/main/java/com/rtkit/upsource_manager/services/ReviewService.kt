@@ -1,122 +1,110 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.entities.participant.ParticipantEntity
-import com.rtkit.upsource_manager.entities.review.ReviewEntity
-import com.rtkit.upsource_manager.payload.api.review.CloseReviewRequestDTO
-import com.rtkit.upsource_manager.payload.api.review.ReviewId
-import com.rtkit.upsource_manager.payload.api.review.ReviewsRequestDTO
-import com.rtkit.upsource_manager.repositories.ReviewRepository
+import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
+import com.rtkit.upsource_manager.payload.upsource.review.Review
+import com.rtkit.upsource_manager.payload.upsource.review.ReviewId
+import com.rtkit.upsource_manager.payload.upsource.review.ReviewsRequestDTO
+import com.rtkit.upsource_manager.payload.upsource.revision.ReviewSummaryChangesRequestDTO
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.stream.Collectors
+import java.time.Instant
 
 @Service
 class ReviewService(
     private val protocolService: ProtocolService,
-    private val reviewRepository: ReviewRepository,
-    private val participantService: ParticipantService,
-    @Value(value = "\${review.defaultTimeToExpired}") val defaultTimeToExpired: Long
+    @Value(value = "\${review.updatedAt.dayToExpired}") val dayToExpired: Int,
+    @Value(value = "\${review.createdAt.dayToExpired}") val createdAtExpired: Int
+
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
-    fun updateReviews(limit: Int, sortBy: String = "id,desc") {
-        val reviewEntitiesFromDB = findAll()
+    private var reviews = mutableListOf<Review>()
+    private var count: Int = 0
+
+    /**
+     * Храним просроченные для статистики
+     */
+    private var expiredAndClosedReviewIds = mutableSetOf<ReviewId>()
+
+    fun updateReviews(limit: Int = 2000, sortBy: String = "updated") {
+        reviews.clear()
         val reviewsFromRequest = protocolService.makeRequest(
             ReviewsRequestDTO(
                 limit = limit,
                 sortBy = sortBy
             )
-        )?.reviews ?: throw Exception("не удалось загрузить ревью")
+        ).reviews
 
-        // Из Review -> ReviewEntity, Participant -> ParticipantEntity
-        val reviewEntities: MutableSet<ReviewEntity> = reviewsFromRequest.stream().map { review ->
-            ReviewEntity(review).apply {
-                review.participants.forEach { participant ->
-                    this.participants.add(
-                        ParticipantEntity(participant)
-                    )
-                }
+        val now = Instant.now().toEpochMilli()
+        reviewsFromRequest.forEach { review -> if (review.state == 2) count++ }
+        reviewsFromRequest
+            .filter { review -> review.state == 1 }
+            .forEach { review ->
+                if (now - review.updatedAt > getEpochMilliFromDay(dayToExpired) ||
+                    now - review.createdAt > getEpochMilliFromDay(createdAtExpired)
+                ) closeExpiredReview(review) else reviews.add(review)
             }
-        }.collect(Collectors.toSet())
-
-        reviewEntities.removeAll(reviewEntitiesFromDB)
-        reviewEntities.forEach { reviewEntity -> participantService.saveParticipants(reviewEntity.participants) }
-        reviewEntities.filter { reviewEntity -> !reviewEntity.isRemoved }
-        saveReviews(reviewEntities)
-        logger.info("========== Обновлено ${reviewEntities.size} ревью ==========")
-
-    }
-
-    private fun findAll(): MutableSet<ReviewEntity> {
-        return reviewRepository.findAll().toMutableSet()
+        logger.info("======= Количество закрытых: $count ===========") // TODO: убрать
+        count = 0
+        logger.info("======= Количество активных ревью: ${reviews.size} ===========") // TODO: убрать
     }
 
 
-    private fun saveReviews(reviews: MutableSet<ReviewEntity>): MutableSet<ReviewEntity>? {
-        return reviews.stream().map { review -> saveReview(review) }.collect(Collectors.toSet())
+    private fun closeExpiredReview(review: Review) {
+        logger.info("========== Нашли просроченное ревью: ${review.reviewId}")
+        expiredAndClosedReviewIds.add(review.reviewId)
+        closeReview(review)
     }
 
-    private fun saveReview(review: ReviewEntity): ReviewEntity {
-        return try {
-            reviewRepository.save(review)
-        } catch (e: Exception) {
-            logger.error("==== Не удалось сохранить ревью: $review")
-            throw Exception() // TODO: сделать обработку без бросания, можно выше отфильтровывать
-        }
-
-    }
-
-    fun closeReviews(reviewList: MutableSet<ReviewEntity>) {
-        reviewList.forEach { review -> closeReview(review.upsourceId) }
-    }
-
-    fun closeReview(upsourceId: String) {
-        val req = CloseReviewRequestDTO(ReviewId().apply {
-            this.reviewId = upsourceId
-        })
+    private fun closeReview(review: Review) {
+        val req = CloseReviewRequestDTO(reviewId = review.reviewId)
         // Удаляем в Upsource
-        if (!protocolService.makeRequest(req).isSuccessfull()) throw Exception()
-
+        if (protocolService.makeRequest(req).isNotSuccessful()) {
+            logger.error("Не удалось удалить ревью ${review.reviewId}")
+            throw Exception("Ошибка закрытия ревью ${review.reviewId}")
+        }
+        logger.info("========== Закрыли ревью: ${review.reviewId} ==========")
         // Удаляем у нас
-        deleteReviewByUpsourceId(upsourceId)
+        deleteReview(review)
     }
 
-    private fun getReviewByUpsourceId(upsourceId: String): ReviewEntity {
-        return reviewRepository.findByUpsourceId(upsourceId)
+    private fun deleteReview(review: Review) {
+        reviews.find { r -> r.reviewId.reviewId == review.reviewId.reviewId }
     }
 
-    private fun deleteReviewByUpsourceId(upsourceId: String) {
+    fun closeReviewsWithEmptyRevision() {
+        updateReviews()
+        getReviewsWithEmptyRevision().forEach { review -> closeReview(review) }
+    }
+
+    private fun getReviewsWithEmptyRevision(): MutableList<Review> {
+        val reviewsWithEmptyRevisionList = mutableListOf<Review>()
+        reviews.stream()
+            .filter { review -> review.state == 1 }
+            .filter { review -> revisionIsEmpty(review) }
+            .forEach { review -> reviewsWithEmptyRevisionList.add(review) }
+
+        return reviewsWithEmptyRevisionList
+    }
+
+    private fun revisionIsEmpty(review: Review): Boolean {
         return try {
-            reviewRepository.deleteByUpsourceId(upsourceId)
+            val resp = protocolService.makeRequest(ReviewSummaryChangesRequestDTO(reviewId = review.reviewId))
+            if (resp.annotation != null && resp.annotation == "Review does not contain any revisions.") {
+                logger.info("Review does not contain any revisions: ${review.reviewId}")
+                true
+            } else false
         } catch (e: Exception) {
-            logger.error("Не удалось удалить ревью: $upsourceId: String")
+            logger.info("Не удалось получить ответ ReviewSummaryChangesResponseDTO у ревью ${review.reviewId}")
+            false
         }
     }
 
-//    private fun getReviewsWithEmptyRevision(): List<Review> {
-//        reviewsWithEmptyRevisionList.clear()
-//        reviews.stream()
-//                .filter { review: Review -> review.state == 1 }
-//                .filter { review: Review -> revisionIsEmpty(review) }
-//                .forEach { review: Review -> reviewsWithEmptyRevisionList.add(review) }
-//
-//        return getParticipantName(reviewsWithEmptyRevisionList)
-//    }
-//
-//    private fun revisionIsEmpty(review: Review): Boolean {
-//        val con = authService.getConnection(RequestURL.GET_REVIEWS)
-//        val jsonRequest = "{\"reviewId\": {\"projectId\": \"elk\", \"reviewId\":\"${review.reviewId.reviewId}\"}}"
-//        val response = authService.doPostRequestAndReceiveResponse(con, jsonRequest)
-//
-//        val revisionRootObj = REVISION_MAPPER.readValue(response, ChangesRoot::class.java)
-//        //у пустых ревью есть аннотация "Review does not contain any revisions."
-//        return (revisionRootObj.result.getAnnotation() != null)
-//    }
-//
-//
-
+    private fun getEpochMilliFromDay(day: Int): Long {
+        return day * 86400000L
+    }
 
 }
 

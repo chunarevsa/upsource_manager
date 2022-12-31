@@ -1,12 +1,12 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.payload.api.ABaseUpsourceRequest
-import com.rtkit.upsource_manager.payload.api.ABaseUpsourceResponse
+import com.rtkit.upsource_manager.payload.ABaseHTTPRequest
+import com.rtkit.upsource_manager.payload.ABaseHTTPResponse
 import org.springframework.stereotype.Service
 
 @Service
 class ProtocolService {
-    fun <REQ : ABaseUpsourceRequest<RESP>, RESP : ABaseUpsourceResponse> makeRequest(request: REQ): RESP {
+    fun <REQ : ABaseHTTPRequest<RESP>, RESP : ABaseHTTPResponse> makeRequest(request: REQ): RESP {
         return request.process()
     }
 }
