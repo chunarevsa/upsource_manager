@@ -1,7 +1,7 @@
 package com.rtkit.upsource_manager.payload.upsource
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.rtkit.upsource_manager.config.AdminConfig.Companion.ADMIN_BASIC_AUTH
+import com.rtkit.upsource_manager.config.AdminConfig
 import com.rtkit.upsource_manager.payload.ABaseHTTPRequest
 import com.rtkit.upsource_manager.payload.IMapper
 import org.apache.logging.log4j.LogManager
@@ -20,7 +20,7 @@ abstract class ABaseUpsourceRequest<RESP : ABaseUpsourceResponse> : ABaseHTTPReq
 
     @JsonIgnore
     override fun getAuth(): String {
-        return ADMIN_BASIC_AUTH
+        return AdminConfig.ADMIN_BASIC_AUTH
     }
 
     @JsonIgnore

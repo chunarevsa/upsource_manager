@@ -6,11 +6,11 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 
 @Service
-class ProjectService(
+class ScheduledService(
     private val reviewService: ReviewService,
     private val userService: UserService
 ) {
-    private val logger: Logger = LogManager.getLogger(ProjectService::class.java)
+    private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
     @Scheduled(cron = "0 */1 * * * *")
     fun update() {
