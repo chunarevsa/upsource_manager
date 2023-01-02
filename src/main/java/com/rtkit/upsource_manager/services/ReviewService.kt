@@ -37,8 +37,12 @@ class ReviewService(
             )
         ).reviews
 
-        val now = Instant.now().toEpochMilli()
+        // Вывод общего количества закрытых ревью за всё время
         reviewsFromRequest.forEach { review -> if (review.state == 2) count++ }
+        logger.info("======= Количество закрытых: $count ===========")
+        count = 0
+
+        val now = Instant.now().toEpochMilli()
         reviewsFromRequest
             .filter { review -> review.state == 1 }
             .forEach { review ->
@@ -46,9 +50,7 @@ class ReviewService(
                     now - review.createdAt > getEpochMilliFromDay(createdAtExpired)
                 ) closeExpiredReview(review) else reviews.add(review)
             }
-        logger.info("======= Количество закрытых: $count ===========") // TODO: убрать
-        count = 0
-        logger.info("======= Количество активных ревью: ${reviews.size} ===========") // TODO: убрать
+        logger.info("======= Количество активных ревью: ${reviews.size} ===========")
     }
 
 

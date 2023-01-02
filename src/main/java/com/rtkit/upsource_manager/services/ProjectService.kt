@@ -39,7 +39,7 @@ class ProjectService(
     /**
      * Раз в 30 дней
      */
-    @Scheduled(cron = "0 */10 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()
