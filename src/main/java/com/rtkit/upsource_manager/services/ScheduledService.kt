@@ -53,7 +53,7 @@ class ScheduledService(
     @Scheduled(fixedRate = 1000)
     fun botTick() {
         logger.info("+")
-        if (botService.botIsWorks) botService.onTick()
+        botService.onTick()
         logger.info("-\n")
     }
 

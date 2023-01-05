@@ -15,25 +15,18 @@ public class BotConfig {
         BOT_TOKEN = token;
     }
 
+    public String introMessage = "Привет! Здесь ты можешь подписаться на события сборки нашего Gitlab!\n" +
+            "Поставь **реакцию** под __нужной площадкой__ ниже, и когда событие произойдёт - я напишу тебе об этом! \n" +
+            "\n" +
+            getReactionTypes() +
+            "\n----------------------------------";
 
-//    private val mapper = ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true)
-//    private fun getConfigFile() = File(System.getProperty("user.home") + File.separator, "dartit-discord-bot-config.json")
-//      // TODO: ConfigService ?
-//    fun save() {
-//        val file = getConfigFile()
-//        file.mkdirs()
-//        file.delete()
-//        mapper.writeValue(file, Config)
-//        logger.info("Config saved: ${file.absoluteFile}")
-//    }
-//
-//    fun load() {
-//        val file = getConfigFile()
-//        if (file.exists()) {
-//            LOGGER.info("Reding config file ${file.absoluteFile}")
-//            mapper.readValue(file, this::class.java)
-//        }
-//        save()
-//    }
+    public String getReactionTypes() {
+        StringBuilder values = new StringBuilder();
+        for (EReactionType one : EReactionType.values()) {
+            values.append("\n").append(one.getEmoji()).append(one.getTitle());
+        }
+        return values.toString();
+    }
 
 }

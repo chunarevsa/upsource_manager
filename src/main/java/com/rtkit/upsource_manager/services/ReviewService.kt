@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.events.upsource.FindExpiredReview
 import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.review.Review
 import com.rtkit.upsource_manager.payload.upsource.review.ReviewId
@@ -8,6 +9,7 @@ import com.rtkit.upsource_manager.payload.upsource.revision.ReviewSummaryChanges
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.time.Instant
 
@@ -15,8 +17,8 @@ import java.time.Instant
 class ReviewService(
     private val protocolService: ProtocolService,
     @Value(value = "\${review.updatedAt.dayToExpired}") val dayToExpired: Int,
-    @Value(value = "\${review.createdAt.dayToExpired}") val createdAtExpired: Int
-
+    @Value(value = "\${review.createdAt.dayToExpired}") val createdAtExpired: Int,
+    private val appEventPublisher: ApplicationEventPublisher
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
@@ -55,7 +57,8 @@ class ReviewService(
 
 
     private fun closeExpiredReview(review: Review) {
-        logger.info("========== Нашли просроченное ревью: ${review.reviewId}")
+
+        appEventPublisher.publishEvent(FindExpiredReview(review))
         expiredAndClosedReviewIds.add(review.reviewId)
         closeReview(review)
     }
