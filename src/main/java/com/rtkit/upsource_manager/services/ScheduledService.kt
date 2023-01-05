@@ -8,11 +8,12 @@ import org.springframework.stereotype.Service
 @Service
 class ScheduledService(
     private val reviewService: ReviewService,
-    private val userService: UserService
+    private val userService: UserService,
+    private val botService: BotService
 ) {
     private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
-    @Scheduled(cron = "0 */1 * * * *")
+//    @Scheduled(cron = "0 */1 * * * *")
     fun update() {
         logger.info("================== Start init ProjectService ==================")
         userService.updateUsers()
@@ -39,11 +40,21 @@ class ScheduledService(
     /**
      * Раз в 30 дней
      */
-    @Scheduled(cron = "0 */5 * * * *")
+//    @Scheduled(cron = "0 */5 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()
         logger.info("================== End close reviews with empty revision ==================\n")
+    }
+
+    /**
+     * Тики бота
+     */
+    @Scheduled(fixedRate = 1000)
+    fun botTick() {
+        logger.info("+")
+        if (botService.botIsWorks) botService.onTick()
+        logger.info("-\n")
     }
 
 }
