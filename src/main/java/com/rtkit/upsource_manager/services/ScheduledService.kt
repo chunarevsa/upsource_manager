@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service
 class ScheduledService(
     private val reviewService: ReviewService,
     private val userService: UserService,
-    private val botService: BotService
 ) {
     private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
@@ -45,16 +44,6 @@ class ScheduledService(
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()
         logger.info("================== End close reviews with empty revision ==================\n")
-    }
-
-    /**
-     * Тики бота
-     */
-    @Scheduled(fixedRate = 1000)
-    fun botTick() {
-        logger.info("+")
-        botService.onTick()
-        logger.info("-\n")
     }
 
 }

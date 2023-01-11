@@ -1,8 +1,6 @@
 ### Sittings ###
-src/main/java/com/rtkit/upsource_manager/config/AdminConfig.kt
-src/main/resources/auth.properties
 src/main/resources/discordBot.properties
-
+src/main/resources/auth.properties
 
 ### ###
 HELP.md

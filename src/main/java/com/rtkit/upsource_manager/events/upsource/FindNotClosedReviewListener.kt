@@ -8,18 +8,17 @@ import org.springframework.stereotype.Component
  * Событие: нашли протухшее ревью, оповещаем пользователя о закрытии и добавляем в статистику
  */
 //@Component
-class FindExpiredReviewListener(
+class FindNotClosedReviewListener(
     private val botInstance: BotInstance
 ) : AUpsourceListener<FindExpiredReview>() {
 
     override fun onApplicationEvent(event: FindExpiredReview) {
         logger.info("========== Нашли просроченное ревью: ${event.review.reviewId}")
 //        botService.notifyUser()
-        botInstance.logger.info("!!!!!!!!!!!!")
     }
 }
 
-class FindExpiredReview(
+class FindNotClosedReview(
     var review: Review
 ) : AUpsourceEvent(review)
 
