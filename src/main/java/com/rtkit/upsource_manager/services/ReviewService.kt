@@ -1,6 +1,5 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.events.upsource.FindExpiredReview
 import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.review.Review
 import com.rtkit.upsource_manager.payload.upsource.review.ReviewId
@@ -58,7 +57,7 @@ class ReviewService(
 
     private fun closeExpiredReview(review: Review) {
 
-        appEventPublisher.publishEvent(FindExpiredReview(review))
+//        appEventPublisher.publishEvent(FindExpiredReview(review))
         expiredAndClosedReviewIds.add(review.reviewId)
         closeReview(review)
     }
