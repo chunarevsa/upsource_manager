@@ -2,6 +2,7 @@ package com.rtkit.upsource_manager.bot
 
 import com.rtkit.upsource_manager.bot.channel.BotChannelHolderManager
 import com.rtkit.upsource_manager.bot.commands.BotCommandHandler
+import com.rtkit.upsource_manager.bot.slashcommands.BotSlashCommandsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -13,7 +14,8 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.requests.RestAction
 import net.dv8tion.jda.api.utils.Compression
 import net.dv8tion.jda.internal.entities.EntityBuilder
-import com.rtkit.upsource_manager.bot.slashcommands.BotSlashCommandsHandler
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
@@ -24,6 +26,8 @@ import kotlin.coroutines.suspendCoroutine
  * Добавить бота: https://lumpics.ru/how-to-add-bot-to-discord-server/
  * @author Johnson on 17.02.2021*/
 object BotInstance : ListenerAdapter() {
+    private val logger: Logger = LogManager.getLogger(BotInstance::class.java)
+
     var jdaInstance: JDA? = null
         private set
 
@@ -39,14 +43,12 @@ object BotInstance : ListenerAdapter() {
         )
         builder.addEventListeners(BotChannelHolderManager, this, BotSlashCommandsHandler, BotCommandHandler)
 
-//        logger.info("Connecting to Discord...")
+        logger.info("Connecting to Discord...")
         jdaInstance = builder.build().awaitReady()
 
         BotSlashCommandsHandler.rebuildSlashCommands()
 
-//        LOGGER.info("Bot started")
-        // Запускаем тики стейтмашины, обслуживающей каналы
-//        ThreadPoolManager.scheduleAtFixedRate(1000, 1000, BotChannelHolderManager::onTick)
+        logger.info("Bot started")
     }
 
     fun stopBot() {
@@ -55,7 +57,7 @@ object BotInstance : ListenerAdapter() {
                 log("SERVICE SHUTDOWN")
                 jdaInstance!!.shutdown()
             } catch (t: Throwable) {
-//                LOGGER.error("", t)
+                logger.error("", t)
             }
         }
     }
@@ -64,8 +66,8 @@ object BotInstance : ListenerAdapter() {
     fun deleteMessages(channel: TextChannel, messages: Collection<Message>, complete: (() -> Unit)? = null) {
         if (messages.isNotEmpty()) {
             try {
-//                LOGGER.info("---------- Delete messages:")
-//                messages.forEach { message -> LOGGER.info("${message.id} - ${message.contentRaw}") }
+                logger.info("---------- Delete messages:")
+                messages.forEach { message -> logger.info("${message.id} - ${message.contentRaw}") }
                 if (messages.size == 1) {
                     channel.deleteMessageById(messages.first().id).queue { complete?.invoke() }
                 } else {
@@ -87,8 +89,8 @@ object BotInstance : ListenerAdapter() {
 
     suspend fun deleteMessagesAsync(channel: TextChannel, messages: Collection<Message>) {
         if (messages.isNotEmpty()) {
-//            LOGGER.info("---------- Delete messages:")
-//            messages.forEach { message -> LOGGER.info("${message.id} - ${message.contentRaw}") }
+            logger.info("---------- Delete messages:")
+            messages.forEach { message -> logger.info("${message.id} - ${message.contentRaw}") }
 
             try {
                 if (messages.size == 1) {
@@ -131,7 +133,7 @@ object BotInstance : ListenerAdapter() {
 
     fun log(msg: String, dcOnly: Boolean = false) {
         if (!dcOnly) {
-//            LOGGER.info(msg)
+            logger.info(msg)
         }
         if (Config.channels.logging.isNotBlank()) {
             jdaInstance?.getTextChannelById(Config.channels.logging)

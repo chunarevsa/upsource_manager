@@ -1,6 +1,6 @@
 package com.rtkit.upsource_manager.bot.channel
 
-import com.rtkit.upsource_manager.IRequest
+import com.rtkit.upsource_manager.bot.Config
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.entities.Activity
@@ -9,32 +9,29 @@ import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.ReadyEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.internal.entities.EntityBuilder
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.springframework.scheduling.annotation.Scheduled
-import com.rtkit.upsource_manager.bot.Config
+import org.springframework.stereotype.Service
 
 /** Бот может контролировать несколько каналов (например, основной и тестовый).
  * Данный объект предоставляет возможность их независимого управления.
  * @author Johnson on 20.02.2021*/
+@Service
 object BotChannelHolderManager : ListenerAdapter() {
+    private val logger: Logger = LogManager.getLogger(BotChannelHolderManager::class.java)
+
     private val holders = HashMap<String, BotChannelHolder>()
 
     fun addHolder(channel: TextChannel) = BotChannelHolder(channel).apply { holders[channel.id] = this }
     fun getHolder(channel: MessageChannel): BotChannelHolder? = holders[channel.id]
-
-    suspend fun <T : IRequest> onPlatformAction(action: APipelineActionInfo<T>) {
-        try {
-            holders.forEach { it.value.onPlatformAction(action) }
-        } catch (e: Exception) {
-//            LOGGER.error("", e)
-        }
-    }
 
     @Scheduled(fixedRate = 1000)
     fun onTick() = holders.forEach {
         try {
             it.value.onTick()
         } catch (e: Exception) {
-//            LOGGER.warn("", e)
+            logger.warn("", e)
         }
     }
 

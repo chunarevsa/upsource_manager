@@ -7,18 +7,17 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import com.rtkit.upsource_manager.bot.Config
 
-/** @author karpov-em on 01.07.2022*/
 @ReflectiveOperation
-class SlashCommand_GitUser : BotSlashCommandsHandler.ISlashCommandHandler() {
-    override val command: String = "gitlab-user-mapping"
-    override val description: String = "Связка или отвязка пользователя Git с пользователем Discord"
+class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
+    override val command: String = "upsource-user-mapping"
+    override val description: String = "Связка или отвязка пользователя Upsource с пользователем Discord"
 
     override fun getOptions(): List<OptionData> {
         return listOf(
             OptionData(OptionType.STRING, "action", "Действие", true, false)
                 .addChoice("Привязать пользователя", "add")
                 .addChoice("Отвязать пользователя", "remove"),
-            OptionData(OptionType.STRING, "git-user", "Пользователь GIT (разделение через запятую)", true, false),
+            OptionData(OptionType.STRING, "upsource-user", "Пользователь Upsource (разделение через запятую)", true, false),
             OptionData(
                 OptionType.USER,
                 "discord-user",
@@ -32,30 +31,30 @@ class SlashCommand_GitUser : BotSlashCommandsHandler.ISlashCommandHandler() {
     override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
         val dcUser = event.getOption("discord-user")?.asUser
             ?: return "${EReactionType.FAIL.emoji} Пользователь discord не найден!"
-        val gitUsers = event.getOption("git-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
-            ?: return "${EReactionType.FAIL.emoji} Пользователь git не найден!"
+        val upsourceUsers = event.getOption("upsource-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
+            ?: return "${EReactionType.FAIL.emoji} Пользователь upsource не найден!"
 
         if (event.getOption("action")?.asString == "add") {
 
             val container = Config.userMapping.computeIfAbsent(dcUser.id, { HashSet() })
             container.add(dcUser.name)
             container.add(dcUser.asMention)
-            container.addAll(gitUsers)
+            container.addAll(upsourceUsers)
             Config.save()
 
-            return "${EReactionType.SUCCESS.emoji} Пользователь `$gitUsers` связан с ${dcUser.asMention}"
+            return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` связан с ${dcUser.asMention}"
         } else {
 
             if (dcUser.isBot) {
-                Config.userMapping.forEach { it.value.removeAll(gitUsers) }
+                Config.userMapping.forEach { it.value.removeAll(upsourceUsers) }
                 Config.save()
 
-                return "${EReactionType.SUCCESS.emoji} Пользователь `$gitUsers` отвязан ото всех пользователей Дискорда!"
+                return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` отвязан ото всех пользователей Дискорда!"
             } else {
-                Config.userMapping[dcUser.id]?.removeAll(gitUsers)
+                Config.userMapping[dcUser.id]?.removeAll(upsourceUsers)
                 Config.save()
 
-                return "${EReactionType.SUCCESS.emoji} Пользователь `$gitUsers` отвязан от пользователя ${dcUser.asMention}"
+                return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` отвязан от пользователя ${dcUser.asMention}"
             }
         }
     }

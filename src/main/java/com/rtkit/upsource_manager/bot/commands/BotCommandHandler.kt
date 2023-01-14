@@ -6,16 +6,20 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 import com.rtkit.upsource_manager.bot.BotInstance
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 /** @author Johnson on 19.02.2021*/
 object BotCommandHandler : ListenerAdapter() {
+    private val logger: Logger = LogManager.getLogger(BotCommandHandler::class.java)
+
     private const val commandHandlerPackage = "com.rtkit.upsource_manager.bot.commands"
     private val handlers =
         Reflections(commandHandlerPackage, SubTypesScanner()).getSubTypesOf(ICommandHandler::class.java)
             .map { c -> c.getDeclaredConstructor().newInstance() }
 
     init {
-//        LOGGER.info("Registered command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
+        logger.info("Registered command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -26,7 +30,7 @@ object BotCommandHandler : ListenerAdapter() {
         // event.message.messageReference?.messageId - это при упоминании другого сообщения
 
         if (event.message.contentDisplay.startsWith("!")) {
-//            LOGGER.info("${event.author.asTag}: ${event.message.contentRaw}")
+            logger.info("${event.author.asTag}: ${event.message.contentRaw}")
             handlers.firstOrNull {
                 // Некоторые хендлеры только для админов
                 if (it.adminOnly && event.member?.hasPermission(Permission.ADMINISTRATOR) != true) return@firstOrNull false
@@ -42,11 +46,11 @@ object BotCommandHandler : ListenerAdapter() {
             }
         }
         if (commandHandled) {
-//            LOGGER.warn("User ${event.author.name} perform command: ${event.message.contentDisplay}")
+            logger.warn("User ${event.author.name} perform command: ${event.message.contentDisplay}")
         }
         // Если команда обработана, либо сообщение от не-бота в контролируемом канале - удаляем сообщение
         if (commandHandled || BotInstance.isControlledChannel(event.channel)) {
-//            LOGGER.info("Message deleted: ${event.message.contentRaw}")
+            logger.info("Message deleted: ${event.message.contentRaw}")
             event.message.delete().queue()
         }
     }

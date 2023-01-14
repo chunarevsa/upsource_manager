@@ -9,11 +9,14 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import com.rtkit.upsource_manager.bot.Config
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
-/** @author karpov-em on 01.07.2022*/
 @ReflectiveOperation
 class SlashCommand_InitCommandChannel : BotSlashCommandsHandler.ISlashCommandHandler() {
-    override val command: String = "gitlab-channel-init"
+    private val logger: Logger = LogManager.getLogger(SlashCommand_InitCommandChannel::class.java)
+    
+    override val command: String = "upsource-channel-init"
     override val description: String = "Инициализация каналов, управляемых ботом"
 
     override fun getOptions(): List<OptionData> {
@@ -48,7 +51,7 @@ class SlashCommand_InitCommandChannel : BotSlashCommandsHandler.ISlashCommandHan
                         event.channel,
                         "${EReactionType.FAIL.emoji} Не удалось инициализировать канал. Смотри логи."
                     )
-//                    LOGGER.error("", e)
+                    logger.error("", e)
                 }
 
                 BotInstance.log("${event.user.asMention} зарегистрировал основной канал")
