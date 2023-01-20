@@ -6,6 +6,7 @@ import com.rtkit.upsource_manager.bot.slashcommands.BotSlashCommandsHandler
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
 import net.dv8tion.jda.api.MessageBuilder
@@ -111,7 +112,7 @@ object BotInstance : ListenerAdapter() {
     }
 
     fun isControlledChannel(channel: MessageChannel) =
-        Config.messageIdStore.keys.contains(channel.id) || Config.channels.logging == channel.id || Config.channels.pushes == channel.id
+        Config.channelStorage.keys.contains(channel.id) || Config.channels.logging == channel.id || Config.channels.pushes == channel.id
 
     fun sendTimedMessage(channel: MessageChannel, text: String, timeoutSeconds: Long = 10) = runBlocking {
         launch {
@@ -176,3 +177,36 @@ suspend fun <T> RestAction<T>.await() = suspendCoroutine<T> { cont ->
         cont.resume(it)
     }
 }
+////
+//protected suspend fun updateUncommitedMessage() {
+//    val builder = MessageBuilder()
+//
+//    if (listenerMentionables.isNotEmpty()) {
+//        builder.append(listenerMentionables.map { BotInstance.getUserMention(it) }.toSet().joinToString(" "))
+//        builder.append(", площадка __")
+//        builder.append(platform)
+//        builder.append("__ ")
+//        builder.append(type.partMessage)
+//    }
+//    if (type == EPlatformBuildActionType.TimedOut && isEmergency) {
+//        if (listenerMentionables.isNotEmpty()) {
+//            builder.append("\n")
+//        }
+//        builder.append(Config.maintainerRoles.map { BotInstance.getRoleMention(it) }.toSet().joinToString(" "))
+//    }
+//
+//    // EmbedMessage explain: https://raw.githubusercontent.com/DV8FromTheWorld/JDA/assets/assets/docs/embeds/07-addField.png
+//    val embedBuilder = EmbedBuilder()
+//    embedBuilder.setAuthor(platform, "https://${platform}/", type.reaction.url)
+//
+//    embedBuilder.setTitle("Площадка ${type.partMessage}", getEmbedMessageUrl())
+//
+//    embedBuilder.addField(MessageEmbed.Field("Начал", BotInstance.getUserMention(userId), true, true))
+//    val commitText = if (commitUrl == "---") commitUrl else "[${commitUrl.substring(commitUrl.lastIndexOf("/") + 1)}]($commitUrl)"
+//    embedBuilder.addField(MessageEmbed.Field("Commit", commitText, true, true))
+//
+//    embedBuilder.setColor(type.color)
+//
+//    builder.setEmbeds(embedBuilder.build())
+//    uncommitedMessage = builder.build()
+//}

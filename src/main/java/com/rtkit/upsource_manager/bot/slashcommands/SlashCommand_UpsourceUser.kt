@@ -1,11 +1,11 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
-import com.rtkit.upsource_manager.ReflectiveOperation
-import com.rtkit.upsource_manager.bot.enums.EReactionType
+import com.rtkit.upsource_manager.bot.ReflectiveOperation
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import com.rtkit.upsource_manager.bot.Config
+import com.rtkit.upsource_manager.bot.enums.EEmoji
 
 @ReflectiveOperation
 class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
@@ -30,9 +30,9 @@ class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler()
 
     override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
         val dcUser = event.getOption("discord-user")?.asUser
-            ?: return "${EReactionType.FAIL.emoji} Пользователь discord не найден!"
+            ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
         val upsourceUsers = event.getOption("upsource-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
-            ?: return "${EReactionType.FAIL.emoji} Пользователь upsource не найден!"
+            ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
 
         if (event.getOption("action")?.asString == "add") {
 
@@ -42,19 +42,19 @@ class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler()
             container.addAll(upsourceUsers)
             Config.save()
 
-            return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` связан с ${dcUser.asMention}"
+            return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` связан с ${dcUser.asMention}"
         } else {
 
             if (dcUser.isBot) {
                 Config.userMapping.forEach { it.value.removeAll(upsourceUsers) }
                 Config.save()
 
-                return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` отвязан ото всех пользователей Дискорда!"
+                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан ото всех пользователей Дискорда!"
             } else {
                 Config.userMapping[dcUser.id]?.removeAll(upsourceUsers)
                 Config.save()
 
-                return "${EReactionType.SUCCESS.emoji} Пользователь `$upsourceUsers` отвязан от пользователя ${dcUser.asMention}"
+                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан от пользователя ${dcUser.asMention}"
             }
         }
     }

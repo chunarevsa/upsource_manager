@@ -1,4 +1,4 @@
-package com.rtkit.upsource_manager
+package com.rtkit.upsource_manager.bot
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 

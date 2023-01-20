@@ -1,7 +1,8 @@
 package com.rtkit.upsource_manager.bot.commands
 
-import com.rtkit.upsource_manager.ReflectiveOperation
+import com.rtkit.upsource_manager.bot.ReflectiveOperation
 import com.rtkit.upsource_manager.bot.BotInstance
+import com.rtkit.upsource_manager.bot.ChannelStorage
 import net.dv8tion.jda.api.entities.Message
 import net.dv8tion.jda.api.entities.MessageHistory
 import net.dv8tion.jda.api.entities.TextChannel
@@ -25,20 +26,20 @@ class CommandHandler_Clear : BotCommandHandler.ICommandHandler() {
             if (!BotInstance.isControlledChannel(channel)) return
 
             val messagesToDelete = ArrayList<Message>()
-            val storeTags = Config.messageIdStore.computeIfAbsent(channel.id, { HashMap() })
+            val channelStorage = Config.channelStorage.computeIfAbsent(channel.id, { ChannelStorage() } )
 
             MessageHistory.getHistoryFromBeginning(channel).queue { hist ->
                 hist.retrievedHistory.forEach { message ->
                     // Интро не трогаем
-                    if (storeTags["INTRO"] == message.id) {
+                    if (channelStorage.introId == message.id) {
                         return@forEach
                     }
                     // Сообщения платформ не трогаем
-                    for (platform in Config.messageIdStore[channel.id]?.keys ?: emptyList()) {
-                        if (storeTags[platform] == message.id) {
-                            return@forEach
-                        }
-                    }
+//                    for (platform in Config.channelStorage[channel.id]?.keys ?: emptyList()) {
+//                        if (channelStorage.introId == message.id) {
+//                            return@forEach
+//                        }
+//                    }
                     // Все остальные сообщения удаляем
                     messagesToDelete.add(message)
                 }

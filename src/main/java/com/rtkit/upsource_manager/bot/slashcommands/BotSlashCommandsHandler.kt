@@ -1,8 +1,8 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
 import com.rtkit.upsource_manager.bot.BotInstance
+import com.rtkit.upsource_manager.bot.enums.EEmoji
 import com.rtkit.upsource_manager.bot.await
-import com.rtkit.upsource_manager.bot.enums.EReactionType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -43,12 +43,12 @@ object BotSlashCommandsHandler : ListenerAdapter() {
         runBlocking {
             launch {
                 if (event.user.isBot) {
-                    event.reply("${EReactionType.FAIL.emoji} Bots is not allowed to use commands!").queue()
+                    event.reply("${EEmoji.BLOCK.emoji} Bots is not allowed to use commands!").queue()
                     return@launch
                 }
 
                 val handler = handlers.find { it.command == event.name } ?: let {
-                    event.reply("${EReactionType.FAIL.emoji} Команда не найдена").queue()
+                    event.reply("${EEmoji.BLOCK.emoji} Команда не найдена").queue()
                     return@launch
                 }
 
@@ -67,7 +67,7 @@ object BotSlashCommandsHandler : ListenerAdapter() {
                     message.delete().queue()
                     return@launch
                 } else {
-                    event.reply("${EReactionType.FAIL.emoji} Команда не обработана! См. логи!").queue()
+                    event.reply("${EEmoji.BLOCK.emoji} Команда не обработана! См. логи!").queue()
                 }
             }
         }

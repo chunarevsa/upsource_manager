@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service
 
 /** Бот может контролировать несколько каналов (например, основной и тестовый).
  * Данный объект предоставляет возможность их независимого управления.
- * @author Johnson on 20.02.2021*/
+ */
 @Service
 object BotChannelHolderManager : ListenerAdapter() {
     private val logger: Logger = LogManager.getLogger(BotChannelHolderManager::class.java)
@@ -26,7 +26,7 @@ object BotChannelHolderManager : ListenerAdapter() {
     fun addHolder(channel: TextChannel) = BotChannelHolder(channel).apply { holders[channel.id] = this }
     fun getHolder(channel: MessageChannel): BotChannelHolder? = holders[channel.id]
 
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 10000)
     fun onTick() = holders.forEach {
         try {
             it.value.onTick()
@@ -36,8 +36,8 @@ object BotChannelHolderManager : ListenerAdapter() {
     }
 
     override fun onReady(event: ReadyEvent) {
-        if (Config.messageIdStore.isNotEmpty()) {
-            Config.messageIdStore.keys.forEach { channelId ->
+        if (Config.channelStorage.isNotEmpty()) {
+            Config.channelStorage.keys.forEach { channelId ->
                 val channel = event.jda.getTextChannelById(channelId)
                 if (channel != null) {
                     val holder = addHolder(channel)
@@ -49,7 +49,7 @@ object BotChannelHolderManager : ListenerAdapter() {
                 }
             }
             event.jda.presence.activity =
-                EntityBuilder.createActivity("за сборкой", null, Activity.ActivityType.WATCHING)
+                EntityBuilder.createActivity("for reviews", null, Activity.ActivityType.WATCHING)
         }
     }
 
