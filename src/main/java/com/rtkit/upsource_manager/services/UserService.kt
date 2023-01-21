@@ -1,5 +1,7 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.bot.BotInstance
+import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.payload.upsource.user.FindUsersRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.user.Info
 import org.apache.logging.log4j.LogManager
@@ -19,6 +21,7 @@ class UserService(
         userFromRequest.forEach { user ->
             if (!userList.contains(user)) {
                 userList.add(user)
+                Config.addUpsourceUserLogin(user.login)
                 logger.info("========== Добавлен новый пользователь ${user.name}")
             }
         }

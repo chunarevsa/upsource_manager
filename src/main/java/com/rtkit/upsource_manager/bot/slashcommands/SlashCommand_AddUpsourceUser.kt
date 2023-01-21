@@ -8,7 +8,7 @@ import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.enums.EEmoji
 
 @ReflectiveOperation
-class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
+class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
     override val command: String = "upsource-user-mapping"
     override val description: String = "Связка или отвязка пользователя Upsource с пользователем Discord"
 
@@ -33,6 +33,7 @@ class SlashCommand_UpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler()
             ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
         val upsourceUsers = event.getOption("upsource-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
             ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
+        upsourceUsers.forEach { user ->  if (!Config.upsourceUserLogin.contains(user)) return "${EEmoji.BLOCK.emoji} Пользователь $user upsource не найден! Повторите попытку"}
 
         if (event.getOption("action")?.asString == "add") {
 

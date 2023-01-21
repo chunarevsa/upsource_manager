@@ -3,6 +3,7 @@ package com.rtkit.upsource_manager.bot.slashcommands
 import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.enums.EEmoji
 import com.rtkit.upsource_manager.bot.await
+import com.rtkit.upsource_manager.bot.channel.BotChannelHolder
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -11,18 +12,20 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import org.reflections.Reflections
 import org.reflections.scanners.SubTypesScanner
 
-/** @author karpov-em on 01.07.2022*/
 object BotSlashCommandsHandler : ListenerAdapter() {
+    private val logger: Logger = LogManager.getLogger(BotSlashCommandsHandler::class.java)
     private const val commandHandlerPackage = "com.rtkit.upsource_manager.bot.slashcommands"
     private val handlers =
         Reflections(commandHandlerPackage, SubTypesScanner()).getSubTypesOf(ISlashCommandHandler::class.java)
             .map { c -> c.getDeclaredConstructor().newInstance() }
 
     init {
-//        LOGGER.info("Registered slash command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
+        logger.info("Registered slash command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
     }
 
     fun rebuildSlashCommands() {
@@ -31,7 +34,7 @@ object BotSlashCommandsHandler : ListenerAdapter() {
                 .updateCommands()
                 .addCommands(handlers.map { Commands.slash(it.command, it.description).addOptions(it.getOptions()) })
                 .queue {
-//                    LOGGER.info("Slash commands pushed to Discord")
+                    logger.info("Slash commands pushed to Discord")
                 }
         }
     }

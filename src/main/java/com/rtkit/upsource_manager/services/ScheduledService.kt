@@ -13,7 +13,7 @@ class ScheduledService(
     private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
 //    @Scheduled(cron = "0 */1 * * * *")
-    fun update() {
+    suspend fun update() {
         logger.info("================== Start init ProjectService ==================")
         userService.updateUsers()
         reviewService.updateReviews(2000)
@@ -29,7 +29,7 @@ class ScheduledService(
         logger.info("================== End update reviews ==================\n")
     }
 
-    //@Scheduled(cron = "0 */300 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     fun updateUsers() {
         logger.info("================== Start update developers ==================")
         userService.updateUsers()

@@ -34,6 +34,9 @@ object Config : IResponse {
 // /bot-git-user action:Привязать пользователя git-user:johnson discord-user:@Johnson1893#1084
 // /bot-upsource-user action:Привязать пользователя upsource-user:chunarev discord-user:@Сергей Чунарёв#0923
 
+    @get:JsonProperty
+    var upsourceUserLogin = HashSet<String>()
+
     private val mapper = ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true)
     private fun getConfigFile() =
         File(System.getProperty("user.home") + File.separator, "dartit-discord-bot-config.json")
@@ -52,6 +55,11 @@ object Config : IResponse {
             logger.info("Reading config file ${file.absoluteFile}")
             mapper.readValue(file, this::class.java)
         }
+        save()
+    }
+
+    fun addUpsourceUserLogin(login: String) {
+        upsourceUserLogin.add(login)
         save()
     }
 }
