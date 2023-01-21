@@ -13,13 +13,14 @@ import java.io.File
 object Config : IResponse {
     private val logger: Logger = LogManager.getLogger(Config::class.java)
 
-    /**  */
+    /** Токен Discord бота */
     @get:JsonProperty
     var botToken: String = ""
 
     @get:JsonProperty
     var channels = ChannelIdStore()
 
+    /** Информация о конкретном канале */
     @get:JsonProperty
     var channelStorage: MutableMap<String, ChannelStorage> = HashMap()
 
@@ -31,9 +32,8 @@ object Config : IResponse {
     /** Хранение маппинга пользователей гита на пользователей дискорда */
     @get:JsonProperty
     var userMapping: MutableMap<String, MutableSet<String>> = HashMap()
-// /bot-git-user action:Привязать пользователя git-user:johnson discord-user:@Johnson1893#1084
-// /bot-upsource-user action:Привязать пользователя upsource-user:chunarev discord-user:@Сергей Чунарёв#0923
 
+    /** Хранение логинов Upsource */
     @get:JsonProperty
     var upsourceUserLogin = HashSet<String>()
 

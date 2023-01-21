@@ -4,15 +4,12 @@ import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.ChannelStorage
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.await
-import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
-import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.MessageHistory
 import net.dv8tion.jda.api.entities.TextChannel
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import java.awt.Color
 
 class BotChannelHolder(private val channel: TextChannel) {
     private val logger: Logger = LogManager.getLogger(BotChannelHolder::class.java)
@@ -38,7 +35,6 @@ class BotChannelHolder(private val channel: TextChannel) {
 
         BotInstance.deleteMessagesAsync(channel, messagesToDelete)
         createIntroMessage()
-        sendTestMessage()
 
         logger.info("Channel ${channel.name} initialization finishing...")
         Config.save()
@@ -70,20 +66,4 @@ class BotChannelHolder(private val channel: TextChannel) {
         logger.error("добавить тик BotChannelHolder")
     }
 
-    private suspend fun sendTestMessage() {
-        try {
-            val messageBuilder = MessageBuilder("MESSAGE1 \n" , )
-
-            val embedBuilder1 = EmbedBuilder()
-            embedBuilder1.addField(MessageEmbed.Field("Автор кода", BotInstance.getUserMention("Сергей Чунарёв"), true, true))
-            embedBuilder1.setColor(Color.RED)
-            messageBuilder.setEmbeds(embedBuilder1.build())
-
-            val message = messageBuilder.build()
-            channel.sendMessage(message).await()
-
-        } catch (e: Exception) {
-            logger.error("Ошибка при отправки сообщения", e)
-        }
-    }
 }

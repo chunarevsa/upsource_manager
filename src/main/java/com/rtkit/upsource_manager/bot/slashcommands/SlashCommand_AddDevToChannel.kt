@@ -1,23 +1,27 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
+import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.ReflectiveOperation
+import com.rtkit.upsource_manager.bot.enums.EEmoji
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
-import com.rtkit.upsource_manager.bot.Config
-import com.rtkit.upsource_manager.bot.enums.EEmoji
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 
 @ReflectiveOperation
 class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandler() {
-    override val command: String = "add-user"
+    private val logger: Logger = LogManager.getLogger(SlashCommand_AddDevToChannel::class.java)
+    override val command: String = "init-user"
     override val description: String = "Добавление discord пользователя"
 
     override fun getOptions(): List<OptionData> {
         return listOf(
             OptionData(OptionType.STRING, "action", "Действие", true, false)
                 .addChoice("Привязать пользователя", "add")
-                .addChoice("Отвязать пользователя", "remove"),
-            OptionData(OptionType.STRING, "discord-user", "пользователь discord", true, false),
+                .addChoice("Отвязать пользователя", "remove")
+                .addChoice("Добавить админа", "admin"),
+
             OptionData(
                 OptionType.USER,
                 "discord-user",
@@ -31,31 +35,38 @@ class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandle
     override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
         val dcUser = event.getOption("discord-user")?.asUser
             ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
-        val upsourceUsers = event.getOption("upsource-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
-            ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
+        // Проверяем есть ли связка discordUser-UpsourceUser
+        Config.userMapping.getOrDefault(event.user.id, null)
+            ?: return "${EEmoji.BLOCK.emoji} Discord пользователь не привязан к Upsource пользователю! " +
+                    "Используй команду /upsource-user-mapping"
 
-        if (event.getOption("action")?.asString == "add") {
-
-            val container = Config.userMapping.computeIfAbsent(dcUser.id, { HashSet() })
-            container.add(dcUser.name)
-            container.add(dcUser.asMention)
-            container.addAll(upsourceUsers)
-            Config.save()
-
-            return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` связан с ${dcUser.asMention}"
-        } else {
-
-            if (dcUser.isBot) {
-                Config.userMapping.forEach { it.value.removeAll(upsourceUsers) }
+        when (event.getOption("action")?.asString) {
+            "add" -> {
+                Config.channelStorage[event.channel.id]?.users?.add(dcUser.id)
                 Config.save()
 
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан ото всех пользователей Дискорда!"
-            } else {
-                Config.userMapping[dcUser.id]?.removeAll(upsourceUsers)
-                Config.save()
-
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан от пользователя ${dcUser.asMention}"
+                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
             }
+            "remove" -> {
+                return if (dcUser.isBot) {
+                    Config.channelStorage[event.channel.id]?.users?.clear()
+                    Config.channelStorage[event.channel.id]?.admins?.clear()
+                    Config.save()
+
+                    "${EEmoji.STARS.emoji} Пользователь отключен от канала!"
+                } else {
+                    logger.error("Произошла ошибка при отключении от канала. Канал: ${event.channel.id} Пользователь: ${event.user.id}")
+                    "${EEmoji.BLOCK.emoji} Произошла ошибка при отключении от канала"
+                }
+            }
+            "admin" -> {
+                Config.channelStorage[event.channel.id]?.admins?.add(dcUser.id)
+                Config.save()
+
+                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
+            }
+
         }
+        return EEmoji.BLOCK.emoji
     }
 }
