@@ -24,7 +24,7 @@ class ScheduledService(
     }
 
 
-    //@Scheduled(cron = "0 */100 * * * *")
+//    @Scheduled(cron = "0 */1 * * * *")
     fun updateReviews() {
         logger.info("================== Start update reviews ==================")
         // Можно сделать выгрузку из application.properties и сортировку по дате создания
@@ -43,7 +43,7 @@ class ScheduledService(
     /**
      * Проверка на пустые ревью
      */
-    @Scheduled(cron = "0 */5 * * * *")
+//    @Scheduled(cron = "0 */5 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()

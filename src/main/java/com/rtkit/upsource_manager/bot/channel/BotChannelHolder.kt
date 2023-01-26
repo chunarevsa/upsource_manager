@@ -83,18 +83,33 @@ class BotChannelHolder(private val channel: TextChannel) {
         deleteMessage()
         val userMap = Config.userMapping[getUserLogin()]!!
 
-        val userReviews = reviews[userMap[2]]
-        userReviews?.sortBy { it.createdAt }
-        val map = userReviews?.map { review -> getMessageFromReview(review, userMap[1]) }
-
-        map?.forEach { message -> channel.sendMessage(message).await() }
-        userReviews?.forEach { review -> reviewIds.add(review.reviewId.reviewId) }
+        val userReviews: MutableList<Review>
+        if (reviews.isNotEmpty()) {
+            userReviews = reviews[userMap[2]]!!
+            userReviews.sortBy { it.createdAt }
+            getMessagesFromReviews(userReviews, userMap[1]).forEach { message -> channel.sendMessage(message).await() }
+            userReviews.forEach { review -> reviewIds.add(review.reviewId.reviewId) }
+        } else {
+            channel.sendMessage(createCongratulationMessage())
+        }
 
     }
 
-    private suspend fun getMessageFromReview(review: Review, name: String): Message {
+    private suspend fun getMessagesFromReviews(userReviews: MutableList<Review>, name: String): MutableList<Message> {
+        val embeds = userReviews.map { review -> getMessageEmbedFromReview(review, name) }
+
+        // максимальное количество embed в одном сообщении
+        val chunked = embeds.chunked(Message.MAX_EMBED_COUNT)
+
+        return chunked.map { chunk ->
+            val messageBuilder = MessageBuilder()
+            messageBuilder.setEmbeds(chunk)
+            messageBuilder.build()
+        }.toMutableList()
+    }
+
+    private suspend fun getMessageEmbedFromReview(review: Review, name: String): MessageEmbed {
         val isNotified = reviewIds.contains(review.reviewId.reviewId)
-        val messageBuilder = MessageBuilder()
         val embedBuilder = EmbedBuilder()
         embedBuilder.addField(
             MessageEmbed.Field(
@@ -112,8 +127,11 @@ class BotChannelHolder(private val channel: TextChannel) {
             else -> Color.BLACK
         }
         embedBuilder.setColor(color)
-        messageBuilder.setEmbeds(embedBuilder.build())
+        return embedBuilder.build()
+    }
 
+    private fun createCongratulationMessage(): Message {
+        val messageBuilder = MessageBuilder("Поздравляю!!!! \n Ты закрыл все ревью")
         return messageBuilder.build()
     }
 
