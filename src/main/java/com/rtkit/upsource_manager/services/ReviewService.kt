@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.events.UpdatedReviewList
 import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.review.Review
 import com.rtkit.upsource_manager.payload.upsource.review.ReviewId
@@ -15,14 +16,14 @@ import java.time.Instant
 @Service
 class ReviewService(
     private val protocolService: ProtocolService,
-    @Value(value = "\${review.updatedAt.dayToExpired}") val dayToExpired: Int,
+    private val userService: UserService,
     @Value(value = "\${review.createdAt.dayToExpired}") val createdAtExpired: Int,
     private val appEventPublisher: ApplicationEventPublisher
 ) {
     private val logger: Logger = LogManager.getLogger(ReviewService::class.java)
 
+    /** Список ревью */
     private var reviews = mutableListOf<Review>()
-    private var count: Int = 0
 
     /**
      * Храним просроченные для статистики
@@ -38,26 +39,22 @@ class ReviewService(
             )
         ).reviews
 
-        // Вывод общего количества закрытых ревью за всё время
-        reviewsFromRequest.forEach { review -> if (review.state == 2) count++ }
-        logger.info("======= Количество закрытых: $count ===========")
-        count = 0
-
         val now = Instant.now().toEpochMilli()
         reviewsFromRequest
             .filter { review -> review.state == 1 }
             .forEach { review ->
-                if (now - review.updatedAt > getEpochMilliFromDay(dayToExpired) ||
-                    now - review.createdAt > getEpochMilliFromDay(createdAtExpired)
-                ) closeExpiredReview(review) else reviews.add(review)
+                if (now - review.createdAt > getEpochMilliFromDay(createdAtExpired)) closeExpiredReview(review) else {
+                    review.expiredStatus = getReviewExpiredStatus(review)
+                    reviews.add(review)
+                }
             }
+        appEventPublisher.publishEvent(UpdatedReviewList(reviews))
         logger.info("======= Количество активных ревью: ${reviews.size} ===========")
     }
 
 
     private fun closeExpiredReview(review: Review) {
-
-//        appEventPublisher.publishEvent(FindExpiredReview(review))
+//        appEventPublisher.publishEvent(FindExpiredReview(review)) // TODO: событие FindExpiredReview
         expiredAndClosedReviewIds.add(review.reviewId)
         closeReview(review)
     }
@@ -110,5 +107,34 @@ class ReviewService(
         return day * 86400000L
     }
 
+    private fun getReviewExpiredStatus(review: Review): EReviewExpiredStatus {
+        return when (Instant.now().toEpochMilli() - review.createdAt) {
+            // TODO: Вынести числа в конфиги
+            in getEpochMilliFromDay(0)..getEpochMilliFromDay(5) -> EReviewExpiredStatus.FRESH
+            in getEpochMilliFromDay(5) + 1..getEpochMilliFromDay(10) -> EReviewExpiredStatus.ATTENTION
+            in getEpochMilliFromDay(10) + 1..getEpochMilliFromDay(createdAtExpired) -> EReviewExpiredStatus.FIRE
+            in getEpochMilliFromDay(createdAtExpired) + 1..getEpochMilliFromDay(60) -> EReviewExpiredStatus.EXPIRED
+            else -> {
+                logger.error("Ошибка при определении просроченности ревью: $review")
+                throw Exception("Ошибка при определении просроченности ревью")
+            }
+        }
+    }
+
+    fun sortedByLogin(reviews: MutableList<Review>): MutableMap<String, MutableList<Review>> {
+        val reviewMapping = mutableMapOf<String, MutableList<Review>>()
+        reviews.forEach { review ->
+            review.participants.forEach { participant ->
+                // отсеять владельцев кода от ревьюверов
+                val login = userService.getLoginByUserId(participant.userId)
+                val isReviewer: Boolean = participant.role == 2
+                if (login != null && isReviewer) {
+                    val container = reviewMapping.computeIfAbsent(login, { mutableListOf<Review>() })
+                    container.add(review)
+                }
+            }
+        }
+        return reviewMapping
+    }
 }
 

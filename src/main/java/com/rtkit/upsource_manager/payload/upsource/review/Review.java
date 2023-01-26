@@ -3,6 +3,7 @@ package com.rtkit.upsource_manager.payload.upsource.review;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.rtkit.upsource_manager.services.EReviewExpiredStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,32 +48,15 @@ public class Review {
     @JsonProperty("mergeToBranch")
     public String mergeToBranch;
 
+    @JsonProperty("expiredStatus")
+    public EReviewExpiredStatus expiredStatus;
+
     /**
      * No args constructor for use in serialization
      */
     public Review() {
     }
 
-    /**
-     * @param reviewId
-     * @param title
-     * @param description
-     * @param participants
-     * @param state
-     * @param isUnread
-     * @param isReadyToClose
-     * @param branch
-     * @param isRemoved
-     * @param createdAt
-     * @param createdBy
-     * @param updatedAt
-     * @param completionRate
-     * @param discussionCounter
-     * @param deadline
-     * @param isMuted
-     * @param mergeFromBranch
-     * @param mergeToBranch
-     */
     public Review(ReviewId reviewId, String title, String description, List<Participant> participants,
                   Integer state, Boolean isUnread, Boolean isReadyToClose, List<String> branch,
                   Boolean isRemoved, Long createdAt, String createdBy, Long updatedAt,
@@ -240,6 +224,14 @@ public class Review {
 
     public void setMergeToBranch(String mergeToBranch) {
         this.mergeToBranch = mergeToBranch;
+    }
+
+    public EReviewExpiredStatus getExpiredStatus() {
+        return expiredStatus;
+    }
+
+    public void setExpiredStatus(EReviewExpiredStatus expiredStatus) {
+        this.expiredStatus = expiredStatus;
     }
 
     @Override

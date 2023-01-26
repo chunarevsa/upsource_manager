@@ -141,21 +141,14 @@ object BotInstance : ListenerAdapter() {
         }
     }
 
-    suspend fun searchUser(search: String): User? {
+    private suspend fun searchUser(search: String): User? {
         val idx = Config.userMapping
             .map { mapping -> arrayOf(mapping.key, *mapping.value.map { it.toLowerCase() }.toTypedArray()) }
             .find { users -> users.contains(search.toLowerCase()) }
         return jdaInstance?.retrieveUserById(idx?.first() ?: search.toLowerCase())?.await()
     }
 
-    fun searchUser2(search: String): Array<String>? {
-        val idx = Config.userMapping
-            .map { mapping -> arrayOf(mapping.key, *mapping.value.map { it.toLowerCase() }.toTypedArray()) }
-            .find { users -> users.contains(search.toLowerCase()) }
-        return idx
-    }
-
-    fun searchRole(search: String): Role? {
+    private fun searchRole(search: String): Role? {
         jdaInstance?.guilds?.forEach { guild ->
             guild.roles.forEach { role ->
                 if (role.name == search || role.id == search || role.asMention == search) {
@@ -170,7 +163,7 @@ object BotInstance : ListenerAdapter() {
 
     fun getRoleMention(search: String) = searchRole(search)?.asMention ?: "`$search`"
 
-    fun getMessageWithoutMentions(msg: String) =
+    private fun getMessageWithoutMentions(msg: String) =
         MessageBuilder().append(msg).denyMentions(Message.MentionType.USER, Message.MentionType.ROLE).build()
 
     fun getTextChannel(channelId: String) = jdaInstance?.getTextChannelById(channelId)

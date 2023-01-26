@@ -1,6 +1,5 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.payload.upsource.user.FindUsersRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.user.Info
@@ -22,13 +21,16 @@ class UserService(
             if (!userList.contains(user)) {
                 userList.add(user)
                 Config.addUpsourceUserLogin(user.login)
-                logger.info("========== Добавлен новый пользователь ${user.name}")
+                logger.info("========== Добавлена информация о пользователе ${user.name}")
             }
         }
 
         logger.info("=== Количество разработчиков: ${userList.size}")
     }
 
+    fun getLoginByUserId(userId: String): String? {
+        return userList.find { info: Info -> info.userId == userId }?.login
+    }
 }
 
 

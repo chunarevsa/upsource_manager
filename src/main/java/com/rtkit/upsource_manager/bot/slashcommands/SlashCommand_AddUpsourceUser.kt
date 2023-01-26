@@ -17,7 +17,7 @@ class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandle
             OptionData(OptionType.STRING, "action", "Действие", true, false)
                 .addChoice("Привязать пользователя", "add")
                 .addChoice("Отвязать пользователя", "remove"),
-            OptionData(OptionType.STRING, "upsource-user", "Пользователь Upsource (разделение через запятую)", true, false),
+            OptionData(OptionType.STRING, "upsource-user", "Пользователь Upsource", true, false),
             OptionData(
                 OptionType.USER,
                 "discord-user",
@@ -31,31 +31,32 @@ class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandle
     override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
         val dcUser = event.getOption("discord-user")?.asUser
             ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
-        val upsourceUsers = event.getOption("upsource-user")?.asString?.split(",")?.map { it.trim() }?.toSet()
+        val upsourceUser = event.getOption("upsource-user")?.asString
             ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
-        upsourceUsers.forEach { user ->  if (!Config.upsourceUserLogin.contains(user)) return "${EEmoji.BLOCK.emoji} Пользователь $user upsource не найден! Повторите попытку"}
+        if (!Config.upsourceUserLogin.contains(upsourceUser))
+            return "${EEmoji.BLOCK.emoji} Пользователь $upsourceUser upsource не найден! Повторите попытку"
 
         if (event.getOption("action")?.asString == "add") {
 
-            val container = Config.userMapping.computeIfAbsent(dcUser.id, { HashSet() })
+            val container = Config.userMapping.computeIfAbsent(dcUser.id, { mutableListOf<String>() })
             container.add(dcUser.name)
             container.add(dcUser.asMention)
-            container.addAll(upsourceUsers)
+            container.add(upsourceUser)
             Config.save()
 
-            return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` связан с ${dcUser.asMention}"
+            return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` связан с ${dcUser.asMention}"
         } else {
 
             if (dcUser.isBot) {
-                Config.userMapping.forEach { it.value.removeAll(upsourceUsers) }
+                Config.userMapping.forEach { it.value.remove(upsourceUser) }
                 Config.save()
 
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан ото всех пользователей Дискорда!"
+                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` отвязан ото всех пользователей Дискорда!"
             } else {
-                Config.userMapping[dcUser.id]?.removeAll(upsourceUsers)
+                Config.userMapping[dcUser.id]?.remove(upsourceUser)
                 Config.save()
 
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUsers` отвязан от пользователя ${dcUser.asMention}"
+                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` отвязан от пользователя ${dcUser.asMention}"
             }
         }
     }

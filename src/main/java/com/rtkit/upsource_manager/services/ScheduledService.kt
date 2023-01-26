@@ -12,13 +12,17 @@ class ScheduledService(
 ) {
     private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
-//    @Scheduled(cron = "0 */1 * * * *")
-    suspend fun update() {
+    /**
+     * Полный апдейт (Reviews + Users)
+     */
+    @Scheduled(cron = "0 */1 * * * *")
+    fun update() {
         logger.info("================== Start init ProjectService ==================")
         userService.updateUsers()
         reviewService.updateReviews(2000)
         logger.info("================== End init ProjectService ==================\n")
     }
+
 
     //@Scheduled(cron = "0 */100 * * * *")
     fun updateReviews() {
@@ -29,7 +33,7 @@ class ScheduledService(
         logger.info("================== End update reviews ==================\n")
     }
 
-    @Scheduled(cron = "0 */1 * * * *")
+    //    @Scheduled(cron = "0 */1 * * * *")
     fun updateUsers() {
         logger.info("================== Start update developers ==================")
         userService.updateUsers()
@@ -37,9 +41,9 @@ class ScheduledService(
     }
 
     /**
-     * Раз в 30 дней
+     * Проверка на пустые ревью
      */
-//    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()

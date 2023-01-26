@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
-import com.rtkit.upsource_manager.bot.enums.EEmoji
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.io.File
@@ -26,12 +25,11 @@ object Config : IResponse {
 
     /** Интро сообщение в основном канале */
     var introMessage: String = "Привет! \n" +
-            "Здесь ты можешь управлять своими ревью из Upsource!\n" +
-            "Чтобы отменить ревью нажми " + EEmoji.BLOCK.emoji
+            "Здесь ты можешь управлять своими ревью из Upsource!\n"
 
     /** Хранение маппинга пользователей гита на пользователей дискорда */
     @get:JsonProperty
-    var userMapping: MutableMap<String, MutableSet<String>> = HashMap()
+    var userMapping: MutableMap<String, MutableList<String>> = HashMap()
 
     /** Хранение логинов Upsource */
     @get:JsonProperty
@@ -78,8 +76,8 @@ class ChannelStorage {
     var introId = ""
 
     @get:JsonProperty
-    var users : MutableSet<String> = HashSet()
+    var users: MutableList<String> = mutableListOf()
 
     @get:JsonProperty
-    var admins : MutableSet<String> = HashSet()
+    var admins: MutableList<String> = mutableListOf()
 }
