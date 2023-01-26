@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.awt.Color
+import java.util.stream.Collectors
 
 class BotChannelHolder(private val channel: TextChannel) {
     private val logger: Logger = LogManager.getLogger(BotChannelHolder::class.java)
@@ -54,6 +55,7 @@ class BotChannelHolder(private val channel: TextChannel) {
         BotInstance.deleteMessagesAsync(channel, messagesToDelete)
     }
 
+
     private suspend fun createIntroMessage() {
         when {
             introMessage == null -> {
@@ -79,46 +81,101 @@ class BotChannelHolder(private val channel: TextChannel) {
         return if (users.isNotEmpty()) users[0] else null
     }
 
-    suspend fun updateReviewMessages(reviews: MutableMap<String, MutableList<Review>>) {
-        deleteMessage()
+    suspend fun updateReviewMessages(reviewsFromReq: MutableMap<String, MutableList<Review>>) {
         val userMap = Config.userMapping[getUserLogin()]!!
-
+        val channelStorage = Config.channelStorage[channel.id]!!
+        val name = if (userMap.size >= 2) userMap[2] else throw Exception()
         val userReviews: MutableList<Review>
-        if (reviews.isNotEmpty()) {
-            userReviews = reviews[userMap[2]]!!
-            userReviews.sortBy { it.createdAt }
-            getMessagesFromReviews(userReviews, userMap[1]).forEach { message -> channel.sendMessage(message).await() }
-            userReviews.forEach { review -> reviewIds.add(review.reviewId.reviewId) }
-        } else {
-            channel.sendMessage(createCongratulationMessage())
-        }
 
+        // Не трогаем интро
+        val messageList = MessageHistory.getHistoryFromBeginning(channel).await().retrievedHistory.toMutableList()
+        messageList.removeIf { it.id == channelStorage.introId }
+
+        if (!reviewsFromReq.containsKey(name)) {
+            // Нет ревью на этом пользователе, заполняем поздравлением, остальные удаляем
+            messageList[0].editMessage(createCongratulationMessage())
+            messageList.removeAt(0)
+            if (messageList.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messageList)
+        } else if (messageList.isEmpty() && reviewsFromReq.containsKey(name)) {
+            // Нет сообщений, но есть ревью
+            userReviews = reviewsFromReq[name]!!
+            userReviews.sortBy { it.createdAt }
+            getMessagesFromReviews(userReviews, userMap[1]).forEach { message ->
+                channel.sendMessage(message).await()
+            }
+        } else if (reviewsFromReq.containsKey(name)) {
+            userReviews = reviewsFromReq[name]!!
+            userReviews.sortBy { it.createdAt }
+            // Сначала старые, потом новые
+            messageList.reverse()
+
+            // Заполняем, что не спамить второй раз
+            messageList.forEach { message ->
+                if (message.embeds.isNotEmpty()) {
+                    message.embeds.forEach { embed ->
+                        embed.fields.forEach { f -> f.name?.let { reviewIds.add(it) } }
+                    }
+                }
+            }
+
+            val messagesToDelete = mutableListOf<Message>()
+            messageList.forEach { message ->
+                // Если ревью не осталось, но остались сообщения удаляем их
+                if (userReviews.isEmpty()) {
+                    messagesToDelete.add(message)
+                } else {
+                    val limit = userReviews.stream()
+                        .limit(Message.MAX_EMBED_COUNT.toLong())
+                        .collect(Collectors.toList()).toMutableList()
+                    val embeds = limit.map { review -> getMessageEmbedFromReview(review, userMap[1]) }
+                    message.editMessage(getMessageWithEmbed(embeds)).await()
+                    userReviews.removeAll(limit)
+
+                }
+            }
+
+            if (messagesToDelete.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messagesToDelete)
+            // Если сообщений не хватило на все ревью, отправляем новое
+            if (userReviews.isNotEmpty()) {
+                getMessagesFromReviews(userReviews, userMap[1]).forEach { message ->
+                    channel.sendMessage(message).await()
+                }
+            }
+
+            reviewIds.clear()
+
+        }
+    }
+
+    private fun getMessageWithEmbed(embeds: List<MessageEmbed>): Message {
+        val messageBuilder = MessageBuilder()
+        messageBuilder.setEmbeds(embeds)
+        return messageBuilder.build()
     }
 
     private suspend fun getMessagesFromReviews(userReviews: MutableList<Review>, name: String): MutableList<Message> {
         val embeds = userReviews.map { review -> getMessageEmbedFromReview(review, name) }
-
         // максимальное количество embed в одном сообщении
         val chunked = embeds.chunked(Message.MAX_EMBED_COUNT)
 
-        return chunked.map { chunk ->
-            val messageBuilder = MessageBuilder()
-            messageBuilder.setEmbeds(chunk)
-            messageBuilder.build()
-        }.toMutableList()
+        return chunked.map { chunk -> getMessageWithEmbed(chunk) }.toMutableList()
     }
 
     private suspend fun getMessageEmbedFromReview(review: Review, name: String): MessageEmbed {
-        val isNotified = reviewIds.contains(review.reviewId.reviewId)
         val embedBuilder = EmbedBuilder()
         embedBuilder.addField(
             MessageEmbed.Field(
-                "Название ${review.reviewId.reviewId}",
-                if (isNotified) name else getUserLogin()?.let { BotInstance.getUserMention(it) },
+                review.reviewId.reviewId,
+                if (reviewIds.contains(review.reviewId.reviewId)) name else getUserLogin()?.let {
+                    BotInstance.getUserMention(
+                        it
+                    )
+                },
                 true,
                 true
             )
         )
+
         val color = when (review.getExpiredStatus()) {
             EReviewExpiredStatus.FRESH -> Color.GREEN
             EReviewExpiredStatus.ATTENTION -> Color.YELLOW
