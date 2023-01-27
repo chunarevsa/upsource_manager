@@ -44,12 +44,49 @@ class ReviewService(
             .filter { review -> review.state == 1 }
             .forEach { review ->
                 if (now - review.createdAt > getEpochMilliFromDay(createdAtExpired)) closeExpiredReview(review) else {
-                    review.expiredStatus = getReviewExpiredStatus(review)
-                    reviews.add(review)
+                    reviews.add(makeCompletedReview(review))
                 }
             }
         appEventPublisher.publishEvent(UpdatedReviewList(reviews))
         logger.info("======= Количество активных ревью: ${reviews.size} ===========")
+    }
+
+    private fun makeCompletedReview(review: Review): Review {
+        return setTask(setDaysToExpired(review))
+    }
+
+    private fun setTask(review: Review): Review {
+        val title = review.title
+        val prefix = "https://ihelp.rt.ru/browse/ELKDEV-"
+
+        if (title.isNullOrBlank() || !title.startsWith(prefix)) {
+            return review
+        }
+
+        val number = title.drop(prefix.length).padEnd(6, ' ').substring(0, 6).filter { it.isDigit() }
+        review.urlTask = prefix + number
+        review.numberTask = "ELKDEV-$number"
+        return review
+    }
+
+    private fun setDaysToExpired(review: Review): Review {
+        val deadline = review.createdAt + getEpochMilliFromDay(createdAtExpired)
+        val millisToDeadline = deadline - Instant.now().toEpochMilli()
+        var daysToDeadline = (millisToDeadline / 86400000).toInt()
+        if (daysToDeadline < 0) daysToDeadline = 0
+
+        review.daysToExpired = daysToDeadline
+        review.expiredStatus = when {
+            daysToDeadline > 10 -> EReviewExpiredStatus.FRESH
+            daysToDeadline in 6..10 -> EReviewExpiredStatus.ATTENTION
+            daysToDeadline in 1..5 -> EReviewExpiredStatus.FIRE
+            daysToDeadline < 0 -> EReviewExpiredStatus.EXPIRED
+            else -> {
+                logger.error("Ошибка при определении просроченности ревью: $review")
+                EReviewExpiredStatus.EXPIRED
+            }
+        }
+        return review
     }
 
 
@@ -107,19 +144,6 @@ class ReviewService(
         return day * 86400000L
     }
 
-    private fun getReviewExpiredStatus(review: Review): EReviewExpiredStatus {
-        return when (Instant.now().toEpochMilli() - review.createdAt) {
-            // TODO: Вынести числа в конфиги
-            in getEpochMilliFromDay(0)..getEpochMilliFromDay(5) -> EReviewExpiredStatus.FRESH
-            in getEpochMilliFromDay(5) + 1..getEpochMilliFromDay(10) -> EReviewExpiredStatus.ATTENTION
-            in getEpochMilliFromDay(10) + 1..getEpochMilliFromDay(createdAtExpired) -> EReviewExpiredStatus.FIRE
-            in getEpochMilliFromDay(createdAtExpired) + 1..getEpochMilliFromDay(60) -> EReviewExpiredStatus.EXPIRED
-            else -> {
-                logger.error("Ошибка при определении просроченности ревью: $review")
-                throw Exception("Ошибка при определении просроченности ревью")
-            }
-        }
-    }
 
     fun sortedByLogin(reviews: MutableList<Review>): MutableMap<String, MutableList<Review>> {
         val reviewMapping = mutableMapOf<String, MutableList<Review>>()

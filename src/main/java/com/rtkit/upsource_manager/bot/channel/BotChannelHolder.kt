@@ -162,11 +162,18 @@ class BotChannelHolder(private val channel: TextChannel) {
     }
 
     private suspend fun getMessageEmbedFromReview(review: Review, name: String): MessageEmbed {
+        val reviewId = review.reviewId.reviewId
+
         val embedBuilder = EmbedBuilder()
+        embedBuilder.setAuthor(
+            reviewId,
+            "https://codereview.ritperm.rt.ru/${review.reviewId.projectId}/review/$reviewId"
+        )
+        if (review.numberTask.isNotEmpty()) embedBuilder.setTitle(review.numberTask, review.urlTask)
         embedBuilder.addField(
             MessageEmbed.Field(
-                review.reviewId.reviewId,
-                if (reviewIds.contains(review.reviewId.reviewId)) name else getUserLogin()?.let {
+                reviewId,
+                if (reviewIds.contains(reviewId)) name else getUserLogin()?.let {
                     BotInstance.getUserMention(
                         it
                     )

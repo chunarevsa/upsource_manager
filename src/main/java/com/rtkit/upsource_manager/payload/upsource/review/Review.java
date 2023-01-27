@@ -14,9 +14,9 @@ public class Review {
     @JsonProperty("reviewId")
     private ReviewId reviewId;
     @JsonProperty("title")
-    private String title;
+    private String title = "";
     @JsonProperty("description")
-    public String description;
+    public String description = "";
     @JsonProperty("participants")
     private List<Participant> participants = new ArrayList<>();
     @JsonProperty("state")
@@ -50,6 +50,10 @@ public class Review {
 
     @JsonProperty("expiredStatus")
     public EReviewExpiredStatus expiredStatus;
+
+    public int daysToExpired;
+    public String urlTask = "";
+    public String numberTask = "";
 
     /**
      * No args constructor for use in serialization
@@ -232,6 +236,30 @@ public class Review {
 
     public void setExpiredStatus(EReviewExpiredStatus expiredStatus) {
         this.expiredStatus = expiredStatus;
+    }
+
+    public int getDaysToExpired() {
+        return daysToExpired;
+    }
+
+    public void setDaysToExpired(int daysToExpired) {
+        this.daysToExpired = daysToExpired;
+    }
+
+    public String getUrlTask() {
+        return urlTask;
+    }
+
+    public void setUrlTask(String urlTask) {
+        this.urlTask = urlTask;
+    }
+
+    public String getNumberTask() {
+        return numberTask;
+    }
+
+    public void setNumberTask(String numberTask) {
+        this.numberTask = numberTask;
     }
 
     @Override
