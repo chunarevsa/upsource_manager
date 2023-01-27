@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.events.UpdatedReviewList
 import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.review.Review
@@ -52,7 +53,7 @@ class ReviewService(
     }
 
     private fun makeCompletedReview(review: Review): Review {
-        return setTask(setDaysToExpired(review))
+        return setAuthor(setTask(setDaysToExpired(review)))
     }
 
     private fun setTask(review: Review): Review {
@@ -86,6 +87,13 @@ class ReviewService(
                 EReviewExpiredStatus.EXPIRED
             }
         }
+        return review
+    }
+
+    private fun setAuthor(review: Review): Review {
+        val author = review.participants.find { it.role == 1 } ?: return review
+        val info = userService.getInfoByUserId(author.userId) ?: return review
+        review.author = info.name
         return review
     }
 

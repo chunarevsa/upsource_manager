@@ -27,10 +27,10 @@ class BotChannelHolder(private val channel: TextChannel) {
     private val reviewIds = mutableListOf<String>()
 
     suspend fun initializeChannel(): BotChannelHolder {
+        Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
         deleteMessage()
         createIntroMessage()
         logger.info("Channel ${channel.name} initialization finishing...")
-        Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
         Config.save()
         return this
     }
@@ -76,13 +76,13 @@ class BotChannelHolder(private val channel: TextChannel) {
         }
     }
 
-    private fun getUserLogin(): String? {
+    private fun getDiscordUserId(): String? {
         val users = Config.channelStorage[channel.id]!!.users
         return if (users.isNotEmpty()) users[0] else null
     }
 
     suspend fun updateReviewMessages(reviewsFromReq: MutableMap<String, MutableList<Review>>) {
-        val userMap = Config.userMapping[getUserLogin()]!!
+        val userMap = Config.userMapping[getDiscordUserId()]!!
         val channelStorage = Config.channelStorage[channel.id]!!
         val name = if (userMap.size >= 2) userMap[2] else throw Exception()
         val userReviews: MutableList<Review>
@@ -100,7 +100,7 @@ class BotChannelHolder(private val channel: TextChannel) {
             // Нет сообщений, но есть ревью
             userReviews = reviewsFromReq[name]!!
             userReviews.sortBy { it.createdAt }
-            getMessagesFromReviews(userReviews, userMap[1]).forEach { message ->
+            getMessagesFromReviews(userReviews).forEach { message ->
                 channel.sendMessage(message).await()
             }
         } else if (reviewsFromReq.containsKey(name)) {
@@ -113,7 +113,7 @@ class BotChannelHolder(private val channel: TextChannel) {
             messageList.forEach { message ->
                 if (message.embeds.isNotEmpty()) {
                     message.embeds.forEach { embed ->
-                        embed.fields.forEach { f -> f.name?.let { reviewIds.add(it) } }
+                        embed.author?.name?.let { reviewIds.add(it) }
                     }
                 }
             }
@@ -127,7 +127,7 @@ class BotChannelHolder(private val channel: TextChannel) {
                     val limit = userReviews.stream()
                         .limit(Message.MAX_EMBED_COUNT.toLong())
                         .collect(Collectors.toList()).toMutableList()
-                    val embeds = limit.map { review -> getMessageEmbedFromReview(review, userMap[1]) }
+                    val embeds = limit.map { review -> getMessageEmbedFromReview(review) }
                     message.editMessage(getMessageWithEmbed(embeds)).await()
                     userReviews.removeAll(limit)
 
@@ -137,7 +137,7 @@ class BotChannelHolder(private val channel: TextChannel) {
             if (messagesToDelete.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messagesToDelete)
             // Если сообщений не хватило на все ревью, отправляем новое
             if (userReviews.isNotEmpty()) {
-                getMessagesFromReviews(userReviews, userMap[1]).forEach { message ->
+                getMessagesFromReviews(userReviews).forEach { message ->
                     channel.sendMessage(message).await()
                 }
             }
@@ -153,31 +153,72 @@ class BotChannelHolder(private val channel: TextChannel) {
         return messageBuilder.build()
     }
 
-    private suspend fun getMessagesFromReviews(userReviews: MutableList<Review>, name: String): MutableList<Message> {
-        val embeds = userReviews.map { review -> getMessageEmbedFromReview(review, name) }
+    private suspend fun getMessagesFromReviews(userReviews: MutableList<Review>): MutableList<Message> {
+        val embeds = userReviews.map { review -> getMessageEmbedFromReview(review) }
         // максимальное количество embed в одном сообщении
         val chunked = embeds.chunked(Message.MAX_EMBED_COUNT)
 
         return chunked.map { chunk -> getMessageWithEmbed(chunk) }.toMutableList()
     }
 
-    private suspend fun getMessageEmbedFromReview(review: Review, name: String): MessageEmbed {
+    private suspend fun getMessageEmbedFromReview(review: Review): MessageEmbed {
         val reviewId = review.reviewId.reviewId
+        val author1 = review.author
+        logger.error("Был $author1!")
+        val author = if (review.author.isNullOrBlank()) {
+            "Unknown".padEnd((50 - "Unknown".length), ' ')
+        } else {
+            // Чтобы был один размер блока
+            review.author.padEnd((50 - review.author.length), ' ')
+
+        }
+        logger.error("Стал $author!")
 
         val embedBuilder = EmbedBuilder()
+        // Номер ревью в Upsource
         embedBuilder.setAuthor(
             reviewId,
             "https://codereview.ritperm.rt.ru/${review.reviewId.projectId}/review/$reviewId"
         )
+
+        // Номер таски из жиры, если было в комментарии коммита
         if (review.numberTask.isNotEmpty()) embedBuilder.setTitle(review.numberTask, review.urlTask)
+
+        // Упоминание если новое ревью и смогли смапить юзера
+        if (!reviewIds.contains(reviewId) && getDiscordUserId() != null) {
+            embedBuilder.setDescription(BotInstance.getUserMention(getDiscordUserId()!!))
+        }
+
+        // Осталось дней
+        if (review.daysToExpired == 0) {
+            embedBuilder.addField(
+                MessageEmbed.Field(
+                    "Закрыть нужно",
+                    "Сегодня",
+                    true,
+                    true
+                )
+            )
+            review.daysToExpired
+        } else {
+            embedBuilder.addField(
+                MessageEmbed.Field(
+                    "Осталось дней",
+                    "${review.daysToExpired}",
+                    true,
+                    true
+                )
+            )
+        }
+
+        // Отступ
+        embedBuilder.addBlankField(true)
+
+        // Автор коммита
         embedBuilder.addField(
             MessageEmbed.Field(
-                reviewId,
-                if (reviewIds.contains(reviewId)) name else getUserLogin()?.let {
-                    BotInstance.getUserMention(
-                        it
-                    )
-                },
+                "Автор коммита",
+                author,
                 true,
                 true
             )

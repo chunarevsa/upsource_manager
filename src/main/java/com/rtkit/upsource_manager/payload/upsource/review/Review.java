@@ -55,6 +55,8 @@ public class Review {
     public String urlTask = "";
     public String numberTask = "";
 
+    public String author;
+
     /**
      * No args constructor for use in serialization
      */
@@ -262,6 +264,14 @@ public class Review {
         this.numberTask = numberTask;
     }
 
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     @Override
     public String toString() {
         return "Review{" +
@@ -283,6 +293,11 @@ public class Review {
                 ", isMuted=" + isMuted +
                 ", mergeFromBranch='" + mergeFromBranch + '\'' +
                 ", mergeToBranch='" + mergeToBranch + '\'' +
+                ", expiredStatus=" + expiredStatus +
+                ", daysToExpired=" + daysToExpired +
+                ", urlTask='" + urlTask + '\'' +
+                ", numberTask='" + numberTask + '\'' +
+                ", author='" + author + '\'' +
                 '}';
     }
 }

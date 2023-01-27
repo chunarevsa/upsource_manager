@@ -31,6 +31,10 @@ class UserService(
     fun getLoginByUserId(userId: String): String? {
         return userList.find { info: Info -> info.userId == userId }?.login
     }
+
+    fun getInfoByUserId(userId: String): Info? {
+        return userList.find { it.userId == userId } // TODO: убрать
+    }
 }
 
 
