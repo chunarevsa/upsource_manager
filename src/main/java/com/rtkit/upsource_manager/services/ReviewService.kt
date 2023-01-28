@@ -1,6 +1,5 @@
 package com.rtkit.upsource_manager.services
 
-import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.events.UpdatedReviewList
 import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
 import com.rtkit.upsource_manager.payload.upsource.review.Review

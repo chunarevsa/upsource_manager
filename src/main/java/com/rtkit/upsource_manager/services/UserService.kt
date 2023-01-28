@@ -20,7 +20,7 @@ class UserService(
         userFromRequest.forEach { user ->
             if (!userList.contains(user)) {
                 userList.add(user)
-                Config.addUpsourceUserLogin(user.login)
+                Config.upsourceUserLogin.add(user.login)
                 logger.info("========== Добавлена информация о пользователе ${user.name}")
             }
         }

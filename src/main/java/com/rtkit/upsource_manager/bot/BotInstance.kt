@@ -142,8 +142,13 @@ object BotInstance : ListenerAdapter() {
     }
 
     private suspend fun searchUser(search: String): User? {
-        val idx = Config.userMapping
-            .map { mapping -> arrayOf(mapping.key, *mapping.value.map { it.toLowerCase() }.toTypedArray()) }
+        val idx = Config.userMap
+            .map { mapping ->
+                arrayOf(
+                    mapping.key,
+                    *mapping.value.getMapping().map { it!!.toLowerCase() }.toTypedArray()
+                )
+            }
             .find { users -> users.contains(search.toLowerCase()) }
         return jdaInstance?.retrieveUserById(idx?.first() ?: search.toLowerCase())?.await()
     }

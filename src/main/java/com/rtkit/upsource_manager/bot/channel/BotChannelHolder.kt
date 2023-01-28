@@ -27,7 +27,7 @@ class BotChannelHolder(private val channel: TextChannel) {
     private val reviewIds = mutableListOf<String>()
 
     /** Максимальная ширина одного блока в сообщении */
-    var maxEmbedSize:Int = 35
+    var maxEmbedSize: Int = 35
 
     suspend fun initializeChannel(): BotChannelHolder {
         Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
@@ -58,7 +58,6 @@ class BotChannelHolder(private val channel: TextChannel) {
         BotInstance.deleteMessagesAsync(channel, messagesToDelete)
     }
 
-
     private suspend fun createIntroMessage() {
         when {
             introMessage == null -> {
@@ -79,35 +78,31 @@ class BotChannelHolder(private val channel: TextChannel) {
         }
     }
 
-    private fun getDiscordUserId(): String? {
-        val users = Config.channelStorage[channel.id]!!.users
-        return if (users.isNotEmpty()) users[0] else null
-    }
-
     suspend fun updateReviewMessages(reviewsFromReq: MutableMap<String, MutableList<Review>>) {
-        val userMap = Config.userMapping[getDiscordUserId()]!!
-        val channelStorage = Config.channelStorage[channel.id]!!
-        val name = if (userMap.size >= 2) userMap[2] else throw Exception()
-        val userReviews: MutableList<Review>
+        if (Config.channelStorage[channel.id]!!.user.isEmpty()) // TODO: сделать ошибку
+            throw Exception("Канал без пользователя. Название:${channel.name}, id:${channel.id}")
 
+        val userMap = Config.getUserMapByChannelId(channel.id)
+        val upsourceLogin = userMap.upsourceLogin
+        val userReviews: MutableList<Review>
         // Не трогаем интро
         val messageList = MessageHistory.getHistoryFromBeginning(channel).await().retrievedHistory.toMutableList()
-        messageList.removeIf { it.id == channelStorage.introId }
+        messageList.removeIf { it.id == Config.channelStorage[channel.id]!!.introId }
 
-        if (!reviewsFromReq.containsKey(name)) {
+        if (!reviewsFromReq.containsKey(upsourceLogin)) {
             // Нет ревью на этом пользователе, заполняем поздравлением, остальные удаляем
             messageList[0].editMessage(createCongratulationMessage())
             messageList.removeAt(0)
             if (messageList.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messageList)
-        } else if (messageList.isEmpty() && reviewsFromReq.containsKey(name)) {
+        } else if (messageList.isEmpty() && reviewsFromReq.containsKey(upsourceLogin)) {
             // Нет сообщений, но есть ревью
-            userReviews = reviewsFromReq[name]!!
+            userReviews = reviewsFromReq[upsourceLogin]!!
             userReviews.sortBy { it.createdAt }
             getMessagesFromReviews(userReviews).forEach { message ->
                 channel.sendMessage(message).await()
             }
-        } else if (reviewsFromReq.containsKey(name)) {
-            userReviews = reviewsFromReq[name]!!
+        } else if (reviewsFromReq.containsKey(upsourceLogin)) {
+            userReviews = reviewsFromReq[upsourceLogin]!!
             userReviews.sortBy { it.createdAt }
             // Сначала старые, потом новые
             messageList.reverse()
@@ -144,9 +139,7 @@ class BotChannelHolder(private val channel: TextChannel) {
                     channel.sendMessage(message).await()
                 }
             }
-
             reviewIds.clear()
-
         }
     }
 
@@ -156,7 +149,7 @@ class BotChannelHolder(private val channel: TextChannel) {
         return messageBuilder.build()
     }
 
-    private suspend fun getMessagesFromReviews(userReviews: MutableList<Review>): MutableList<Message> {
+    private fun getMessagesFromReviews(userReviews: MutableList<Review>): MutableList<Message> {
         val embeds = userReviews.map { review -> getMessageEmbedFromReview(review) }
         // максимальное количество embed в одном сообщении
         val chunked = embeds.chunked(Message.MAX_EMBED_COUNT)
@@ -165,12 +158,12 @@ class BotChannelHolder(private val channel: TextChannel) {
     }
 
     // Построение блоков можно посмотреть здесь https://autocode.com/tools/discord/embed-builder/
-    private suspend fun getMessageEmbedFromReview(review: Review): MessageEmbed {
+    private fun getMessageEmbedFromReview(review: Review): MessageEmbed {
         val reviewId = review.reviewId.reviewId
 
         // Для выравнивания заполняем прозрачными пробелами (они шире в 2 раза чем обычный)
         var author = if (review.author.isNullOrBlank()) "Неизвестно⠀⠀⠀⠀⠀⠀⠀⠀" else review.author
-        author = author.padEnd(maxEmbedSize - (maxEmbedSize - author.length)/2, '⠀')
+        author = author.padEnd(maxEmbedSize - (maxEmbedSize - author.length) / 2, '⠀')
 
         val embedBuilder = EmbedBuilder()
         // Номер ревью в Upsource
@@ -183,8 +176,9 @@ class BotChannelHolder(private val channel: TextChannel) {
         if (review.numberTask.isNotEmpty()) embedBuilder.setTitle(review.numberTask, review.urlTask)
 
         // Упоминание если новое ревью и смогли смапить юзера
-        if (!reviewIds.contains(reviewId) && getDiscordUserId() != null) {
-            embedBuilder.setDescription(BotInstance.getUserMention(getDiscordUserId()!!))
+        if (!reviewIds.contains(reviewId)) {
+            Config.userMap
+            embedBuilder.setDescription(Config.getUserMapByChannelId(channel.id).discordUserMention)
         }
 
         // Осталось дней

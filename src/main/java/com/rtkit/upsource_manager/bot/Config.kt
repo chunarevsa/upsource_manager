@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.bot
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -29,10 +30,10 @@ object Config : IResponse {
 
     /** Хранение маппинга пользователей гита на пользователей дискорда */
     @get:JsonProperty
-    var userMapping: MutableMap<String, MutableList<String>> = HashMap()
+    var userMap: MutableMap<String, UserMap> = HashMap()
 
-    /** Хранение логинов Upsource */
-    @get:JsonProperty
+    /** Список логинов в upsource. Заполняется при первом апдейте */
+    @JsonIgnore
     var upsourceUserLogin = HashSet<String>()
 
     private val mapper = ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true)
@@ -56,9 +57,13 @@ object Config : IResponse {
         save()
     }
 
-    fun addUpsourceUserLogin(login: String) {
-        upsourceUserLogin.add(login)
-        save()
+    /** Получение userMap по ид канала.
+     * Использовать только при уже инициализированном канале и пользователе */
+    fun getUserMapByChannelId(channelId: String): UserMap {
+        val discordId = channelStorage[channelId]?.user ?: run {
+            throw Exception("Что-то пошло не так. Перед функцией getUserMapByChannelId не выполнены проверки")
+        }
+        return userMap[discordId]!!
     }
 }
 
@@ -76,8 +81,24 @@ class ChannelStorage {
     var introId = ""
 
     @get:JsonProperty
-    var users: MutableList<String> = mutableListOf()
+    var user: String = ""
 
     @get:JsonProperty
     var admins: MutableList<String> = mutableListOf()
+}
+
+class UserMap {
+    @get:JsonProperty
+    var discordUsername: String? = null
+
+    @get:JsonProperty
+    var discordUserMention: String? = null
+
+    @get:JsonProperty
+    var upsourceLogin: String? = null
+
+    @JsonIgnore
+    fun getMapping(): MutableList<String?> {
+        return mutableListOf(discordUsername, discordUserMention, upsourceLogin)
+    }
 }

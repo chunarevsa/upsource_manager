@@ -1,11 +1,12 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
+import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.ReflectiveOperation
+import com.rtkit.upsource_manager.bot.UserMap
+import com.rtkit.upsource_manager.bot.enums.EEmoji
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
-import com.rtkit.upsource_manager.bot.Config
-import com.rtkit.upsource_manager.bot.enums.EEmoji
 
 @ReflectiveOperation
 class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
@@ -21,43 +22,38 @@ class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandle
             OptionData(
                 OptionType.USER,
                 "discord-user",
-                "Пользователь Discord (для отвязки ото всех Discord пользователей выберите бота)",
+                "Пользователь Discord",
                 true,
                 false
             ),
         )
     }
 
+
     override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
         val dcUser = event.getOption("discord-user")?.asUser
             ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
-        val upsourceUser = event.getOption("upsource-user")?.asString
+        val upsourceLogin = event.getOption("upsource-user")?.asString
             ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
-        if (!Config.upsourceUserLogin.contains(upsourceUser))
-            return "${EEmoji.BLOCK.emoji} Пользователь $upsourceUser upsource не найден! Повторите попытку"
+
+
+        if (!Config.upsourceUserLogin.contains(upsourceLogin))
+            return "${EEmoji.BLOCK.emoji} Пользователь $upsourceLogin upsource не найден! Повторите попытку"
 
         if (event.getOption("action")?.asString == "add") {
-
-            val container = Config.userMapping.computeIfAbsent(dcUser.id, { mutableListOf<String>() })
-            container.add(dcUser.name)
-            container.add(dcUser.asMention)
-            container.add(upsourceUser)
+            val userMap = Config.userMap.computeIfAbsent(dcUser.id, { UserMap() })
+            userMap.discordUsername = dcUser.name
+            userMap.discordUserMention = dcUser.asMention
+            userMap.upsourceLogin = upsourceLogin
             Config.save()
 
-            return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` связан с ${dcUser.asMention}"
+            return "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` связан с ${dcUser.asMention}"
         } else {
+            Config.userMap.remove(dcUser.id)
+            Config.channelStorage.forEach { channel -> if (channel.value.user == dcUser.id) channel.value.user = "" }
+            Config.save()
 
-            if (dcUser.isBot) {
-                Config.userMapping.forEach { it.value.remove(upsourceUser) }
-                Config.save()
-
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` отвязан ото всех пользователей Дискорда!"
-            } else {
-                Config.userMapping[dcUser.id]?.remove(upsourceUser)
-                Config.save()
-
-                return "${EEmoji.STARS.emoji} Пользователь `$upsourceUser` отвязан от пользователя ${dcUser.asMention}"
-            }
+            return "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` отвязан от пользователя ${dcUser.asMention}"
         }
     }
 }

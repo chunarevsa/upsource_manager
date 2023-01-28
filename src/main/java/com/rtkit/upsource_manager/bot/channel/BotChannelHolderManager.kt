@@ -27,7 +27,13 @@ object BotChannelHolderManager : ListenerAdapter() {
     fun getHolder(channel: MessageChannel): BotChannelHolder? = holders[channel.id]
 
     suspend fun updateReviewMessages(reviews: MutableMap<String, MutableList<Review>>) {
-        holders.forEach { holder -> holder.value.updateReviewMessages(reviews) }
+        holders.forEach { holder ->
+            try {
+                holder.value.updateReviewMessages(reviews)
+            } catch (e: Exception) {
+                logger.error(e.message)
+            }
+        }
     }
 
     override fun onReady(event: ReadyEvent) {
