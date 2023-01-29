@@ -71,7 +71,7 @@ abstract class ABaseHTTPRequest<RESP : ABaseHTTPResponse> :
             }
         } catch (e: IOException) {
             logger.error("Ошибка чтения информации")
-            e.printStackTrace()
+            throw e
         }
         if (response.toString().isNotEmpty()) this.httpCode = con.responseCode
         return response.toString()
