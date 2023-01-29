@@ -14,17 +14,17 @@ class ScheduledService(
 
     init {
         updateUsers()
-//        updateReviews()
+        updateReviews()
     }
 
-    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 */30 * * * *")
     fun updateReviews() {
         logger.info("==== Start update reviews")
         reviewService.updateReviews(query = "state:open")
         logger.info("==== End update reviews\n")
     }
 
-    @Scheduled(cron = "0 */60 * * * *")
+//    @Scheduled(cron = "0 */60 * * * *")
     fun updateUsers() {
         logger.info("==== Start update developers")
         userService.updateUsers()
@@ -34,7 +34,7 @@ class ScheduledService(
     /**
      * Проверка на пустые ревью
      */
-    @Scheduled(cron = "0 */55 * * * *")
+//    @Scheduled(cron = "0 */55 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("==== Start close reviews with empty revision")
         reviewService.closeReviewsWithEmptyRevision()

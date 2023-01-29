@@ -5,7 +5,7 @@ import com.rtkit.upsource_manager.bot.ChannelStorage
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.await
 import com.rtkit.upsource_manager.payload.upsource.review.Review
-import com.rtkit.upsource_manager.services.EReviewExpiredStatus
+import com.rtkit.upsource_manager.payload.upsource.review.EReviewExpiredStatus
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message

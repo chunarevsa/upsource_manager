@@ -1,10 +1,7 @@
 package com.rtkit.upsource_manager.services
 
 import com.rtkit.upsource_manager.events.UpdatedReviewList
-import com.rtkit.upsource_manager.payload.upsource.review.CloseReviewRequestDTO
-import com.rtkit.upsource_manager.payload.upsource.review.Review
-import com.rtkit.upsource_manager.payload.upsource.review.ReviewId
-import com.rtkit.upsource_manager.payload.upsource.review.ReviewsRequestDTO
+import com.rtkit.upsource_manager.payload.upsource.review.*
 import com.rtkit.upsource_manager.payload.upsource.revision.ReviewSummaryChangesRequestDTO
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger

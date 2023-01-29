@@ -3,7 +3,6 @@ package com.rtkit.upsource_manager.payload.upsource.review;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.rtkit.upsource_manager.services.EReviewExpiredStatus;
 
 import java.util.ArrayList;
 import java.util.List;
