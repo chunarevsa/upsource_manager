@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData
 
 @ReflectiveOperation
 class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandler() {
-    override val command: String = "upsource-user-mapping"
+    override val command: String = "add-upsource-user"
     override val description: String = "Связка или отвязка пользователя Upsource с пользователем Discord"
 
     override fun getOptions(): List<OptionData> {
@@ -36,24 +36,23 @@ class SlashCommand_AddUpsourceUser : BotSlashCommandsHandler.ISlashCommandHandle
         val upsourceLogin = event.getOption("upsource-user")?.asString
             ?: return "${EEmoji.BLOCK.emoji} Пользователь upsource не найден!"
 
-
         if (!Config.upsourceUserLogin.contains(upsourceLogin))
             return "${EEmoji.BLOCK.emoji} Пользователь $upsourceLogin upsource не найден! Повторите попытку"
 
-        if (event.getOption("action")?.asString == "add") {
+        return if (event.getOption("action")?.asString == "add") {
             val userMap = Config.userMap.computeIfAbsent(dcUser.id, { UserMap() })
             userMap.discordUsername = dcUser.name
             userMap.discordUserMention = dcUser.asMention
             userMap.upsourceLogin = upsourceLogin
             Config.save()
 
-            return "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` связан с ${dcUser.asMention}"
+            "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` связан с ${dcUser.asMention}"
         } else {
             Config.userMap.remove(dcUser.id)
             Config.channelStorage.forEach { channel -> if (channel.value.user == dcUser.id) channel.value.user = "" }
             Config.save()
 
-            return "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` отвязан от пользователя ${dcUser.asMention}"
+            "${EEmoji.STARS.emoji} Пользователь `$upsourceLogin` отвязан от пользователя ${dcUser.asMention}"
         }
     }
 }

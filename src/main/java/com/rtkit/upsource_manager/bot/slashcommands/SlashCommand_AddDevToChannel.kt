@@ -37,16 +37,18 @@ class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandle
             ?: return "${EEmoji.BLOCK.emoji} Пользователь discord не найден!"
         // Проверяем есть ли связка discordUser-UpsourceUser
         Config.userMap.getOrDefault(event.user.id, null)
-            ?: return "${EEmoji.BLOCK.emoji} Discord пользователь не привязан к Upsource пользователю! " +
-                    "Используй команду /upsource-user-mapping"
+            ?: return "${EEmoji.BLOCK.emoji} Discord пользователь не привязан к Upsource пользователю! \n" +
+                    "Используй команду /add-upsource-user"
 
         when (event.getOption("action")?.asString) {
             "add" -> {
                 Config.channelStorage[event.channel.id]?.user = dcUser.id
                 Config.save()
                 logger.info("Пользователь успешно инициализирован: ${dcUser.id}")
+                // TODO сделать запуск апдейта. см. InitNewDiscordChannel
 
-                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
+                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован \n" +
+                        "${EEmoji.STARS.emoji} Загружаю список ревью..."
             }
             "remove" -> {
                 return if (dcUser.isBot) {
