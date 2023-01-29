@@ -14,14 +14,13 @@ class ScheduledService(
 
     init {
         updateUsers()
-        updateReviews()
+//        updateReviews()
     }
 
     @Scheduled(cron = "0 */1 * * * *")
     fun updateReviews() {
         logger.info("================== Start update reviews ==================")
-        // TODO: сделать запрос только по активным без лимита
-        reviewService.updateReviews(limit = 100)
+        reviewService.updateReviews(query = "state:open")
         logger.info("================== End update reviews ==================\n")
     }
 
@@ -35,7 +34,7 @@ class ScheduledService(
     /**
      * Проверка на пустые ревью
      */
-    @Scheduled(cron = "0 */60 * * * *")
+    @Scheduled(cron = "0 */55 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()
