@@ -78,7 +78,7 @@ class ReviewService(
             daysToDeadline > 10 -> EReviewExpiredStatus.FRESH
             daysToDeadline in 6..10 -> EReviewExpiredStatus.ATTENTION
             daysToDeadline in 1..5 -> EReviewExpiredStatus.FIRE
-            daysToDeadline < 0 -> EReviewExpiredStatus.EXPIRED
+            daysToDeadline < 1 -> EReviewExpiredStatus.EXPIRED
             else -> {
                 logger.error("Ошибка при определении просроченности ревью: $review")
                 EReviewExpiredStatus.EXPIRED
