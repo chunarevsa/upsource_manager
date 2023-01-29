@@ -33,7 +33,7 @@ class BotChannelHolder(private val channel: TextChannel) {
         Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
         deleteMessage()
         createIntroMessage()
-        logger.info("Channel ${channel.name} initialization finishing...")
+        logger.info("==== Channel ${channel.name} initialization finishing...")
         Config.save()
         return this
     }
@@ -64,16 +64,16 @@ class BotChannelHolder(private val channel: TextChannel) {
                 val it = channel.sendMessage(MessageBuilder(Config.introMessage).build()).await()
                 introMessage = it
                 Config.channelStorage[channel.id]!!.introId = it.id
-                logger.info("Channel ${channel.name} creates intro message")
+                logger.info("==== Channel ${channel.name} creates intro message")
             }
             introMessage!!.contentRaw != Config.introMessage -> {
                 val it = introMessage!!.editMessage(MessageBuilder(Config.introMessage).build()).await()
                 introMessage = it
                 Config.channelStorage[channel.id]!!.introId = it.id
-                logger.info("Channel ${channel.name} edit intro message")
+                logger.info("==== Channel ${channel.name} edit intro message")
             }
             else -> {
-                logger.info("Channel ${channel.name} intro message OK")
+                logger.info("==== Channel ${channel.name} intro message OK")
             }
         }
     }

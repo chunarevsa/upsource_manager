@@ -43,18 +43,18 @@ object BotInstance : ListenerAdapter() {
         )
         builder.addEventListeners(BotChannelHolderManager, this, BotSlashCommandsHandler, BotCommandHandler)
 
-        logger.info("Connecting to Discord...")
+        logger.info("==== Connecting to Discord...")
         jdaInstance = builder.build().awaitReady()
 
         BotSlashCommandsHandler.rebuildSlashCommands()
 
-        logger.info("Bot started")
+        logger.info("==== Bot started")
     }
 
     fun stopBot() {
         if (jdaInstance != null) {
             try {
-                log("SERVICE SHUTDOWN")
+                log("==== Service shutdown")
                 jdaInstance!!.shutdown()
             } catch (t: Throwable) {
                 logger.error("", t)
@@ -66,7 +66,7 @@ object BotInstance : ListenerAdapter() {
     fun deleteMessages(channel: TextChannel, messages: Collection<Message>, complete: (() -> Unit)? = null) {
         if (messages.isNotEmpty()) {
             try {
-                logger.info("---------- Delete messages:")
+                logger.info("==== Delete messages:")
                 messages.forEach { message -> logger.info("${message.id} - ${message.contentRaw}") }
                 if (messages.size == 1) {
                     channel.deleteMessageById(messages.first().id).queue { complete?.invoke() }
@@ -89,7 +89,7 @@ object BotInstance : ListenerAdapter() {
 
     suspend fun deleteMessagesAsync(channel: TextChannel, messages: Collection<Message>) {
         if (messages.isNotEmpty()) {
-            logger.info("---------- Delete messages:")
+            logger.info("==== Delete messages:")
             messages.forEach { message -> logger.info("${message.id} - ${message.contentRaw}") }
 
             try {

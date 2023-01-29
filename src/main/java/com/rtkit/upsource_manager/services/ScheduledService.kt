@@ -19,16 +19,16 @@ class ScheduledService(
 
     @Scheduled(cron = "0 */1 * * * *")
     fun updateReviews() {
-        logger.info("================== Start update reviews ==================")
+        logger.info("==== Start update reviews")
         reviewService.updateReviews(query = "state:open")
-        logger.info("================== End update reviews ==================\n")
+        logger.info("==== End update reviews\n")
     }
 
     @Scheduled(cron = "0 */60 * * * *")
     fun updateUsers() {
-        logger.info("================== Start update developers ==================")
+        logger.info("==== Start update developers")
         userService.updateUsers()
-        logger.info("================== End update developers ==================\n")
+        logger.info("==== End update developers\n")
     }
 
     /**
@@ -36,9 +36,9 @@ class ScheduledService(
      */
     @Scheduled(cron = "0 */55 * * * *")
     fun closeReviewsWithEmptyRevision() {
-        logger.info("================== Start close reviews with empty revision ==================")
+        logger.info("==== Start close reviews with empty revision")
         reviewService.closeReviewsWithEmptyRevision()
-        logger.info("================== End close reviews with empty revision ==================\n")
+        logger.info("==== End close reviews with empty revision\n")
     }
 
 }

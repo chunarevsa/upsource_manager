@@ -44,7 +44,7 @@ class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandle
             "add" -> {
                 Config.channelStorage[event.channel.id]?.user = dcUser.id
                 Config.save()
-                logger.info("Пользователь успешно инициализирован: ${dcUser.id}")
+                logger.info("==== Пользователь успешно инициализирован: ${dcUser.id}")
                 // TODO сделать запуск апдейта. см. InitNewDiscordChannel
 
                 return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован \n" +

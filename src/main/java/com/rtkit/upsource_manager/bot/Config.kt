@@ -45,13 +45,13 @@ object Config : IResponse {
         file.mkdirs()
         file.delete()
         mapper.writeValue(file, Config)
-        logger.info("Config saved: ${file.absoluteFile}")
+        logger.info("==== Config saved: ${file.absoluteFile}")
     }
 
     fun load() {
         val file = getConfigFile()
         if (file.exists()) {
-            logger.info("Reading config file ${file.absoluteFile}")
+            logger.info("==== Reading config file ${file.absoluteFile}")
             mapper.readValue(file, this::class.java)
         }
         save()

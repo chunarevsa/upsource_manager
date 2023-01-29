@@ -19,7 +19,7 @@ object BotCommandHandler : ListenerAdapter() {
             .map { c -> c.getDeclaredConstructor().newInstance() }
 
     init {
-        logger.info("Registered command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
+        logger.info("==== Registered command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
     }
 
     override fun onMessageReceived(event: MessageReceivedEvent) {
@@ -50,7 +50,7 @@ object BotCommandHandler : ListenerAdapter() {
         }
         // Если команда обработана, либо сообщение от не-бота в контролируемом канале - удаляем сообщение
         if (commandHandled || BotInstance.isControlledChannel(event.channel)) {
-            logger.info("Message deleted: ${event.message.contentRaw}")
+            logger.info("==== Message deleted: ${event.message.contentRaw}")
             event.message.delete().queue()
         }
     }

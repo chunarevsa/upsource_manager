@@ -49,7 +49,7 @@ class ReviewService(
                 }
             }
         appEventPublisher.publishEvent(UpdatedReviewList(reviews))
-        logger.info("======= Количество активных ревью: ${reviews.size} ===========")
+        logger.info("==== Количество активных ревью: ${reviews.size}")
     }
 
     private fun makeCompletedReview(review: Review): Review {
@@ -111,7 +111,7 @@ class ReviewService(
             logger.error("Не удалось удалить ревью ${review.reviewId}")
             throw Exception("Ошибка закрытия ревью ${review.reviewId}")
         }
-        logger.info("========== Закрыли ревью: ${review.reviewId} ==========")
+        logger.info("==== Закрыли ревью: ${review.reviewId}")
         // Удаляем у нас
         deleteReview(review)
     }
@@ -138,12 +138,9 @@ class ReviewService(
     private fun revisionIsEmpty(review: Review): Boolean {
         return try {
             val resp = protocolService.makeRequest(ReviewSummaryChangesRequestDTO(reviewId = review.reviewId))
-            if (resp.annotation != null && resp.annotation == "Review does not contain any revisions.") {
-                logger.info("Review does not contain any revisions: ${review.reviewId}")
-                true
-            } else false
+            resp.annotation != null && resp.annotation == "Review does not contain any revisions."
         } catch (e: Exception) {
-            logger.info("Не удалось получить ответ ReviewSummaryChangesResponseDTO у ревью ${review.reviewId}")
+            logger.info("==== Не удалось получить ответ ReviewSummaryChangesResponseDTO у ревью ${review.reviewId}")
             false
         }
     }

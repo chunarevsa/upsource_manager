@@ -25,7 +25,7 @@ object BotSlashCommandsHandler : ListenerAdapter() {
             .map { c -> c.getDeclaredConstructor().newInstance() }
 
     init {
-        logger.info("Registered slash command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
+        logger.info("==== Registered slash command handlers: ${handlers.joinToString(", ") { h -> h.command }}")
     }
 
     fun rebuildSlashCommands() {
@@ -34,7 +34,7 @@ object BotSlashCommandsHandler : ListenerAdapter() {
                 .updateCommands()
                 .addCommands(handlers.map { Commands.slash(it.command, it.description).addOptions(it.getOptions()) })
                 .queue {
-                    logger.info("Slash commands pushed to Discord")
+                    logger.info("==== Slash commands pushed to Discord")
                 }
         }
     }

@@ -20,12 +20,12 @@ class BotService {
 
     init {
         try {
-            logger.info("Server starting ...")
+            logger.info("==== Server starting ...")
             Config.load()
-            logger.info("... Config loaded")
+            logger.info("==== ... Config loaded")
 
             BotInstance.runBot()
-            BotInstance.log("SERVICE STARTED")
+            BotInstance.log("==== Service started")
         } catch (t: Throwable) {
             logger.error("", t)
         }
