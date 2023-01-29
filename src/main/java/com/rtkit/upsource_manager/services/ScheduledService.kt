@@ -12,28 +12,20 @@ class ScheduledService(
 ) {
     private val logger: Logger = LogManager.getLogger(ScheduledService::class.java)
 
-    /**
-     * Полный апдейт (Reviews + Users)
-     */
-    @Scheduled(cron = "0 */1 * * * *")
-    fun update() {
-        logger.info("================== Start init ProjectService ==================")
-        userService.updateUsers()
-        reviewService.updateReviews(2000)
-        logger.info("================== End init ProjectService ==================\n")
+    init {
+        updateUsers()
+        updateReviews()
     }
 
-
-//    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 */1 * * * *")
     fun updateReviews() {
         logger.info("================== Start update reviews ==================")
-        // Можно сделать выгрузку из application.properties и сортировку по дате создания
-        val limit: Int = 2000
-        reviewService.updateReviews(limit)
+        // TODO: сделать запрос только по активным без лимита
+        reviewService.updateReviews(limit = 100)
         logger.info("================== End update reviews ==================\n")
     }
 
-    //    @Scheduled(cron = "0 */1 * * * *")
+    @Scheduled(cron = "0 */60 * * * *")
     fun updateUsers() {
         logger.info("================== Start update developers ==================")
         userService.updateUsers()
@@ -43,7 +35,7 @@ class ScheduledService(
     /**
      * Проверка на пустые ревью
      */
-//    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */60 * * * *")
     fun closeReviewsWithEmptyRevision() {
         logger.info("================== Start close reviews with empty revision ==================")
         reviewService.closeReviewsWithEmptyRevision()
