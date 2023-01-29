@@ -25,8 +25,8 @@ object Config : IResponse {
     var channelStorage: MutableMap<String, ChannelStorage> = HashMap()
 
     /** Интро сообщение в основном канале */
-    var introMessage: String = "Привет! \n" +
-            "Здесь ты можешь управлять своими ревью из Upsource!\n"
+    var introMessage: String = "Добро пожаловать в Upsource Manager! \n" +
+            "Здесь ты можешь получать актуальный список твоих ревью в Upsource!\n"
 
     /** Хранение маппинга пользователей гита на пользователей дискорда */
     @get:JsonProperty

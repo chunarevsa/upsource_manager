@@ -56,7 +56,7 @@ class SlashCommand_InitCommandChannel : BotSlashCommandsHandler.ISlashCommandHan
 
                 BotInstance.log("${event.user.asMention} зарегистрировал основной канал")
                 // init messages
-                return "${EEmoji.STARS.emoji} Основной канал успешно зарегистрирован! Добавьте разработчика!"
+                return "${EEmoji.STARS.emoji} Основной канал успешно зарегистрирован!"
             }
             "logging" -> {
                 Config.channels.logging = event.messageChannel.id

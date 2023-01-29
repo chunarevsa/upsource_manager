@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
+import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.ReflectiveOperation
 import com.rtkit.upsource_manager.bot.enums.EEmoji
@@ -47,8 +48,7 @@ class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandle
                 logger.info("==== Пользователь успешно инициализирован: ${dcUser.id}")
                 // TODO сделать запуск апдейта. см. InitNewDiscordChannel
 
-                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован \n" +
-                        "${EEmoji.STARS.emoji} Загружаю список ревью..."
+                return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
             }
             "remove" -> {
                 return if (dcUser.isBot) {
