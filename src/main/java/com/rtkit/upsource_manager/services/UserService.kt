@@ -21,11 +21,9 @@ class UserService(
             if (!userList.contains(user)) {
                 userList.add(user)
                 Config.upsourceUserLogin.add(user.login)
-                logger.info("==== Добавлена информация о пользователе ${user.name}")
             }
         }
 
-        logger.info("==== Количество разработчиков: ${userList.size}")
     }
 
     fun getLoginByUserId(userId: String): String? {

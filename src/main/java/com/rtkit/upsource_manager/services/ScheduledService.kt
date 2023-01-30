@@ -1,5 +1,6 @@
 package com.rtkit.upsource_manager.services
 
+import com.rtkit.upsource_manager.bot.Config
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import org.springframework.scheduling.annotation.Scheduled
@@ -14,10 +15,11 @@ class ScheduledService(
 
     init {
         updateUsers()
+        logger.info("==== Добавлена информация о пользователях: ${Config.upsourceUserLogin}")
         updateReviews()
     }
 
-    @Scheduled(cron = "0 */30 * * * *")
+    @Scheduled(cron = "0 */5 * * * *")
     fun updateReviews() {
         logger.info("==== Start update reviews")
         reviewService.updateReviews(query = "state:open")
