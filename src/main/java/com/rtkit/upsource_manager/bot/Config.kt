@@ -26,7 +26,8 @@ object Config : IResponse {
 
     /** Интро сообщение в основном канале */
     var introMessage: String = "Добро пожаловать в Upsource Manager! \n" +
-            "Здесь ты можешь получать актуальный список твоих ревью в Upsource!\n"
+            "Здесь ты можешь получать актуальный список твоих ревью в Upsource!\n" +
+            "Подробнее: __https://github.com/chunarevsa/upsource_manager__"
 
     /** Хранение маппинга пользователей гита на пользователей дискорда */
     @get:JsonProperty
