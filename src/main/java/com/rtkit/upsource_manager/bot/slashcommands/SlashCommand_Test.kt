@@ -1,18 +1,15 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
-import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.ReflectiveOperation
 import com.rtkit.upsource_manager.bot.await
-import com.rtkit.upsource_manager.bot.channel.BotChannelHolder
-import com.rtkit.upsource_manager.bot.channel.BotChannelHolderManager
 import com.rtkit.upsource_manager.bot.enums.EEmoji
-import com.rtkit.upsource_manager.services.ReviewService
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.MessageChannel
 import net.dv8tion.jda.api.entities.MessageEmbed
-import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import net.dv8tion.jda.api.interactions.commands.OptionType
+import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.awt.Color
@@ -23,26 +20,45 @@ class SlashCommand_Test : BotSlashCommandsHandler.ISlashCommandHandler() {
     override val command: String = "send-test-message"
     override val description: String = "test"
 
-    override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
-        sendTestMessage(event.channel)
-        return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
+    override fun getOptions(): List<OptionData> {
+        return listOf(
+            OptionData(OptionType.STRING, "text-message", "Текст сообщения", true, false),
+            OptionData(OptionType.STRING, "embed-name", "Имя блока", false, false),
+            OptionData(OptionType.STRING, "embed-value", "Значение блока", false, false),
+        )
     }
 
-    private suspend fun sendTestMessage(channel: MessageChannel) {
-        try {
-            val messageBuilder = MessageBuilder("MESSAGE1 \n")
+    override suspend fun onCommand(event: SlashCommandInteractionEvent): String {
+        val text = event.getOption("text-message")?.asString
+            ?: "${EEmoji.BLOCK.emoji} Текст не может быть пустым"
+        val embedName = event.getOption("embed-name")?.asString
+        val embedValue = event.getOption("embed-value")?.asString
+            ?: "Стандартное значение блока"
 
-            val embedBuilder1 = EmbedBuilder()
-            embedBuilder1.addField(
-                MessageEmbed.Field(
-                    "Автор кода",
-                    BotInstance.getUserMention("940863876390604800"),
-                    true,
-                    true
+        sendTestMessage(event.channel, text, embedName, embedValue)
+
+        return "${EEmoji.STARS.emoji} Команда выполнена"
+    }
+
+
+    private suspend fun sendTestMessage(channel: MessageChannel, text: String, embedName: String?, embedValue: String) {
+        try {
+            val messageBuilder = MessageBuilder(text)
+            if (!embedName.isNullOrEmpty()) {
+                val embedBuilder = EmbedBuilder()
+                embedBuilder.addField(
+                    MessageEmbed.Field(
+                        embedName,
+                        embedValue,
+                        true,
+                        true
+                    )
                 )
-            )
-            embedBuilder1.setColor(Color.RED)
-            messageBuilder.setEmbeds(embedBuilder1.build())
+                embedBuilder.setFooter("940863876390604800")
+                embedBuilder.setColor(Color.RED)
+                messageBuilder.setEmbeds(embedBuilder.build())
+
+            }
 
             val message = messageBuilder.build()
             channel.sendMessage(message).await()
