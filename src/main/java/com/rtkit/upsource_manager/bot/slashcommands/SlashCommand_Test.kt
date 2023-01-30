@@ -25,6 +25,7 @@ class SlashCommand_Test : BotSlashCommandsHandler.ISlashCommandHandler() {
             OptionData(OptionType.STRING, "text-message", "Текст сообщения", true, false),
             OptionData(OptionType.STRING, "embed-name", "Имя блока", false, false),
             OptionData(OptionType.STRING, "embed-value", "Значение блока", false, false),
+            OptionData(OptionType.STRING, "embed-footer", "Футер блока", false, false),
         )
     }
 
@@ -33,15 +34,9 @@ class SlashCommand_Test : BotSlashCommandsHandler.ISlashCommandHandler() {
             ?: "${EEmoji.BLOCK.emoji} Текст не может быть пустым"
         val embedName = event.getOption("embed-name")?.asString
         val embedValue = event.getOption("embed-value")?.asString
-            ?: "Стандартное значение блока"
+        val embedFooter = event.getOption("embed-footer")?.asString
+            ?: "Стандартное значение футера"
 
-        sendTestMessage(event.channel, text, embedName, embedValue)
-
-        return "${EEmoji.STARS.emoji} Команда выполнена"
-    }
-
-
-    private suspend fun sendTestMessage(channel: MessageChannel, text: String, embedName: String?, embedValue: String) {
         try {
             val messageBuilder = MessageBuilder(text)
             if (!embedName.isNullOrEmpty()) {
@@ -54,18 +49,20 @@ class SlashCommand_Test : BotSlashCommandsHandler.ISlashCommandHandler() {
                         true
                     )
                 )
-                embedBuilder.setFooter("940863876390604800")
+                embedBuilder.setFooter(embedFooter)
                 embedBuilder.setColor(Color.RED)
                 messageBuilder.setEmbeds(embedBuilder.build())
 
             }
 
             val message = messageBuilder.build()
-            channel.sendMessage(message).await()
+            event.channel.sendMessage(message).await()
 
         } catch (e: Exception) {
             logger.error("Ошибка при отправки сообщения", e)
         }
+
+        return "${EEmoji.STARS.emoji} Команда выполнена"
     }
 
 }
