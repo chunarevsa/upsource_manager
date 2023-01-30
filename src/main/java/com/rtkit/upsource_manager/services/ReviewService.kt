@@ -71,7 +71,10 @@ class ReviewService(
         val deadline = review.createdAt + getEpochMilliFromDay(createdAtExpired)
         val millisToDeadline = deadline - Instant.now().toEpochMilli()
         var daysToDeadline = (millisToDeadline / 86400000).toInt()
-        if (daysToDeadline < 0) daysToDeadline = 0
+        if (daysToDeadline <= 0) {
+            daysToDeadline = 0
+            review.millisToDeadline = millisToDeadline
+        }
 
         review.daysToExpired = daysToDeadline
         review.expiredStatus = when {

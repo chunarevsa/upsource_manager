@@ -185,13 +185,12 @@ class BotChannelHolder(private val channel: TextChannel) {
         if (review.daysToExpired == 0) {
             embedBuilder.addField(
                 MessageEmbed.Field(
-                    "Закрыть нужно",
-                    "Сегодня",
+                    "Осталось часов",
+                    (review.millisToDeadline / 3600000).toString(),
                     true,
                     true
                 )
             )
-            review.daysToExpired
         } else {
             embedBuilder.addField(
                 MessageEmbed.Field(

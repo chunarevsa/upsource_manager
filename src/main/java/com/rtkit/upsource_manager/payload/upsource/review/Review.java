@@ -55,6 +55,7 @@ public class Review {
     public String numberTask = "";
 
     public String author;
+    public long millisToDeadline;
 
     /**
      * No args constructor for use in serialization
@@ -269,6 +270,14 @@ public class Review {
 
     public void setAuthor(String author) {
         this.author = author;
+    }
+
+    public long getMillisToDeadline() {
+        return millisToDeadline;
+    }
+
+    public void setMillisToDeadline(long millisToDeadline) {
+        this.millisToDeadline = millisToDeadline;
     }
 
     @Override
