@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.springframework.context.ApplicationEventPublisher
 import java.io.File
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -40,6 +41,13 @@ object Config : IResponse {
     private val mapper = ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true)
     private fun getConfigFile() =
         File(System.getProperty("user.home") + File.separator, "dartit-discord-bot-config.json")
+
+    /**
+     * Нужен для публикации событий происходящих в Discord
+     * Например: UserSubscribeToChannelListener
+     */
+    @JsonIgnore
+    var appEventPublisher: ApplicationEventPublisher? = null
 
     fun save() {
         val file = getConfigFile()

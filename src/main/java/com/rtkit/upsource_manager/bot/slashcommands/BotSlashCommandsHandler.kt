@@ -1,9 +1,8 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
 import com.rtkit.upsource_manager.bot.BotInstance
-import com.rtkit.upsource_manager.bot.enums.EEmoji
 import com.rtkit.upsource_manager.bot.await
-import com.rtkit.upsource_manager.bot.channel.BotChannelHolder
+import com.rtkit.upsource_manager.bot.enums.EEmoji
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
