@@ -27,7 +27,7 @@ class BotChannelHolder(private val channel: TextChannel) {
     private val reviewIds = mutableListOf<String>()
 
     /** Максимальная ширина одного блока в сообщении */
-    var maxEmbedSize: Int = 35
+    private var maxEmbedSize: Int = 25
 
     suspend fun initializeChannel(): BotChannelHolder {
         Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
@@ -160,10 +160,7 @@ class BotChannelHolder(private val channel: TextChannel) {
     // Построение блоков можно посмотреть здесь https://autocode.com/tools/discord/embed-builder/
     private fun getMessageEmbedFromReview(review: Review): MessageEmbed {
         val reviewId = review.reviewId.reviewId
-
-        // Для выравнивания заполняем прозрачными пробелами (они шире в 2 раза чем обычный)
-        var author = if (review.author.isNullOrBlank()) "Неизвестно⠀⠀⠀⠀⠀⠀⠀⠀" else review.author
-        author = author.padEnd(maxEmbedSize - (maxEmbedSize - author.length) / 2, '⠀')
+        val author = if (review.author.isNullOrBlank()) "Неизвестно" else review.author
 
         val embedBuilder = EmbedBuilder()
         // Номер ревью в Upsource
@@ -208,7 +205,8 @@ class BotChannelHolder(private val channel: TextChannel) {
         // Автор коммита
         embedBuilder.addField(
             MessageEmbed.Field(
-                "Автор коммита",
+                // Для выравнивания ширины блока заполняем прозрачными пробелами
+                "Автор коммита".padEnd(maxEmbedSize, '⠀'),
                 author,
                 true,
                 true
