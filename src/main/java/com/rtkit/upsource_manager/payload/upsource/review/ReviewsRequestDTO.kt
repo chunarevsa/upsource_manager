@@ -10,7 +10,7 @@ class ReviewsRequestDTO(
     @JsonProperty("limit")
     val limit: Int,
     @JsonProperty("query")
-    val query: String? = null,
+    val query: String? = "state:open",
     @JsonProperty("sortBy")
     val sortBy: String = "updated",
     @JsonProperty("skip")

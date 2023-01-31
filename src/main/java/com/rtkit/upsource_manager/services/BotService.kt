@@ -8,20 +8,24 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 @Service
-class BotService {
-    private val logger: Logger = LogManager.getLogger(BotService::class.java)
+class BotService(
+    private val appEventPublisher: ApplicationEventPublisher
+) {
 
+    private val logger: Logger = LogManager.getLogger(BotService::class.java)
     private val lock = ReentrantLock()
 
     init {
         try {
             logger.info("==== Server starting ...")
             Config.load()
+            Config.appEventPublisher = appEventPublisher
             logger.info("==== ... Config loaded")
 
             BotInstance.runBot()
