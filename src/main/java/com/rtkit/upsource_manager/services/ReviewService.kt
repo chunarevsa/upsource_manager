@@ -27,7 +27,7 @@ class ReviewService(
      */
     private var expiredAndClosedReviewIds = mutableSetOf<ReviewId>()
 
-    fun updateReviews(limit: Int = 2000, sortBy: String = "updated", query: String? = null) {
+    fun updateReviews(limit: Int = 2000, sortBy: String = "updated", query: String? = "state:open") {
         reviews.clear()
         val reviewsFromRequest = protocolService.makeRequest(
             ReviewsRequestDTO(

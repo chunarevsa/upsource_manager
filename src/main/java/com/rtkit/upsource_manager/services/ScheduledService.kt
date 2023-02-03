@@ -19,7 +19,7 @@ class ScheduledService(
         updateReviews()
     }
 
-    @Scheduled(cron = "0 */5 * * * *")
+    @Scheduled(cron = "0 */2 * * * *")
     fun updateReviews() {
         logger.info("==== Start update reviews")
         reviewService.updateReviews(query = "state:open")

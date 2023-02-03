@@ -1,9 +1,9 @@
 package com.rtkit.upsource_manager.bot.slashcommands
 
-import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.ReflectiveOperation
 import com.rtkit.upsource_manager.bot.enums.EEmoji
+import com.rtkit.upsource_manager.events.UserSubscribeToChannel
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
@@ -45,9 +45,8 @@ class SlashCommand_AddDevToChannel : BotSlashCommandsHandler.ISlashCommandHandle
             "add" -> {
                 Config.channelStorage[event.channel.id]?.user = dcUser.id
                 Config.save()
-                logger.info("==== Пользователь успешно инициализирован: ${dcUser.id}")
-                // TODO сделать запуск апдейта. см. InitNewDiscordChannel
-
+                // Делаем апдейт ревью
+                Config.appEventPublisher!!.publishEvent(UserSubscribeToChannel(event.user.id))
                 return "${EEmoji.STARS.emoji} Пользователь успешно инициализирован"
             }
             "remove" -> {
