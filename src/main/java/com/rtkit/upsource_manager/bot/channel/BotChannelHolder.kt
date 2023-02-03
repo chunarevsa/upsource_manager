@@ -4,8 +4,8 @@ import com.rtkit.upsource_manager.bot.BotInstance
 import com.rtkit.upsource_manager.bot.ChannelStorage
 import com.rtkit.upsource_manager.bot.Config
 import com.rtkit.upsource_manager.bot.await
-import com.rtkit.upsource_manager.payload.upsource.review.Review
 import com.rtkit.upsource_manager.payload.upsource.review.EReviewExpiredStatus
+import com.rtkit.upsource_manager.payload.upsource.review.Review
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.MessageBuilder
 import net.dv8tion.jda.api.entities.Message
@@ -15,7 +15,6 @@ import net.dv8tion.jda.api.entities.TextChannel
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.awt.Color
-import java.util.stream.Collectors
 
 class BotChannelHolder(private val channel: TextChannel) {
     private val logger: Logger = LogManager.getLogger(BotChannelHolder::class.java)
@@ -90,10 +89,13 @@ class BotChannelHolder(private val channel: TextChannel) {
         messageList.removeIf { it.id == Config.channelStorage[channel.id]!!.introId }
 
         if (!reviewsFromReq.containsKey(upsourceLogin)) {
-            // Нет ревью на этом пользователе, заполняем поздравлением, остальные удаляем
-            messageList[0].editMessage(createCongratulationMessage())
-            messageList.removeAt(0)
-            if (messageList.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messageList)
+            // Нет ревью на этом пользователе, заполняем первое сообщение поздравлением, остальные удаляем
+            if (messageList.isNotEmpty()) {
+                messageList[0].editMessage(createCongratulationMessage())
+                messageList.removeAt(0)
+                if (messageList.isNotEmpty()) BotInstance.deleteMessagesAsync(channel, messageList)
+            } else channel.sendMessage(createCongratulationMessage()).await()
+
         } else if (messageList.isEmpty() && reviewsFromReq.containsKey(upsourceLogin)) {
             // Нет сообщений, но есть ревью
             userReviews = reviewsFromReq[upsourceLogin]!!
@@ -122,13 +124,9 @@ class BotChannelHolder(private val channel: TextChannel) {
                 if (userReviews.isEmpty()) {
                     messagesToDelete.add(message)
                 } else {
-                    val limit = userReviews.stream()
-                        .limit(Message.MAX_EMBED_COUNT.toLong())
-                        .collect(Collectors.toList()).toMutableList()
-                    val embeds = limit.map { review -> getMessageEmbedFromReview(review) }
-                    message.editMessage(getMessageWithEmbed(embeds)).await()
-                    userReviews.removeAll(limit)
-
+                    val review = userReviews.first()
+                    message.editMessage(getMessageFromReview(review))
+                    userReviews.remove(review)
                 }
             }
 
@@ -143,22 +141,19 @@ class BotChannelHolder(private val channel: TextChannel) {
         }
     }
 
-    private fun getMessageWithEmbed(embeds: List<MessageEmbed>): Message {
+    private fun getMessagesFromReviews(userReviews: MutableList<Review>): MutableList<Message> {
+        return userReviews.map { review -> getMessageFromReview(review) }.toMutableList()
+    }
+
+    /** Одно сообщение - один блок - одно ревью */
+    private fun getMessageFromReview(review: Review): Message {
         val messageBuilder = MessageBuilder()
-        messageBuilder.setEmbeds(embeds)
+        messageBuilder.setEmbeds(getEmbedFromReview(review))
         return messageBuilder.build()
     }
 
-    private fun getMessagesFromReviews(userReviews: MutableList<Review>): MutableList<Message> {
-        val embeds = userReviews.map { review -> getMessageEmbedFromReview(review) }
-        // максимальное количество embed в одном сообщении
-        val chunked = embeds.chunked(Message.MAX_EMBED_COUNT)
-
-        return chunked.map { chunk -> getMessageWithEmbed(chunk) }.toMutableList()
-    }
-
     // Построение блоков можно посмотреть здесь https://autocode.com/tools/discord/embed-builder/
-    private fun getMessageEmbedFromReview(review: Review): MessageEmbed {
+    private fun getEmbedFromReview(review: Review): MessageEmbed {
         val reviewId = review.reviewId.reviewId
 
         // Для выравнивания заполняем прозрачными пробелами (они шире в 2 раза чем обычный)
