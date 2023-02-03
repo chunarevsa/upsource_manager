@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.entities.TextChannel
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
 import java.awt.Color
+import java.util.stream.Collectors
 
 class BotChannelHolder(private val channel: TextChannel) {
     private val logger: Logger = LogManager.getLogger(BotChannelHolder::class.java)
@@ -26,7 +27,7 @@ class BotChannelHolder(private val channel: TextChannel) {
     private val reviewIds = mutableListOf<String>()
 
     /** Максимальная ширина одного блока в сообщении */
-    var maxEmbedSize: Int = 35
+    private var maxEmbedSize: Int = 25
 
     suspend fun initializeChannel(): BotChannelHolder {
         Config.channelStorage.computeIfAbsent(channel.id) { ChannelStorage() }
@@ -124,8 +125,9 @@ class BotChannelHolder(private val channel: TextChannel) {
                 if (userReviews.isEmpty()) {
                     messagesToDelete.add(message)
                 } else {
+                    // Изменяем блоки
                     val review = userReviews.first()
-                    message.editMessage(getMessageFromReview(review))
+                    message.editMessageEmbeds(message.embeds.map { getEmbedFromReview(review) }).await()
                     userReviews.remove(review)
                 }
             }
@@ -155,10 +157,7 @@ class BotChannelHolder(private val channel: TextChannel) {
     // Построение блоков можно посмотреть здесь https://autocode.com/tools/discord/embed-builder/
     private fun getEmbedFromReview(review: Review): MessageEmbed {
         val reviewId = review.reviewId.reviewId
-
-        // Для выравнивания заполняем прозрачными пробелами (они шире в 2 раза чем обычный)
-        var author = if (review.author.isNullOrBlank()) "Неизвестно⠀⠀⠀⠀⠀⠀⠀⠀" else review.author
-        author = author.padEnd(maxEmbedSize - (maxEmbedSize - author.length) / 2, '⠀')
+        val author = if (review.author.isNullOrBlank()) "Неизвестно" else review.author
 
         val embedBuilder = EmbedBuilder()
         // Номер ревью в Upsource
@@ -170,9 +169,13 @@ class BotChannelHolder(private val channel: TextChannel) {
         // Номер таски из жиры, если было в комментарии коммита
         if (review.numberTask.isNotEmpty()) embedBuilder.setTitle(review.numberTask, review.urlTask)
 
-        // Упоминание если новое ревью и смогли смапить юзера
+        val reviewIds1 = reviewIds
+        val reviewId1 = reviewId
+        val contains = reviewIds.contains(reviewId)
+
+
+        // Упоминание если новое ревью
         if (!reviewIds.contains(reviewId)) {
-            Config.userMap
             embedBuilder.setDescription(Config.getUserMapByChannelId(channel.id).discordUserMention)
         }
 
@@ -203,7 +206,8 @@ class BotChannelHolder(private val channel: TextChannel) {
         // Автор коммита
         embedBuilder.addField(
             MessageEmbed.Field(
-                "Автор коммита",
+                // Для выравнивания ширины блока заполняем прозрачными пробелами
+                "Автор коммита".padEnd(maxEmbedSize, '⠀'),
                 author,
                 true,
                 true
